@@ -3,7 +3,7 @@
   <PropertyGroup>
     <PackageType>Template</PackageType>
     <PackageId>Rulealize.Templates</PackageId>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Authors>Reny</Authors>
     <Title>Rulealize templates</Title>
     <Description>dotnet new templates for Rulealize. `rulealize-plugin` creates a vocabulary: one plugin class, one worked example of each kind of node, and a rule set that calls them.</Description>

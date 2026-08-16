@@ -96,17 +96,10 @@ and a schema's four members are each visible whole.
 Copy the shape you need, write yours, delete all three. The same goes for
 `ruleset/probe.json`, which calls them.
 
-## Working on these templates
-
-```sh
-dotnet new install C:\Repos\Rulealize.Templates\content\RulealizePlugin
-dotnet new rulealize-plugin -n Rulealize.Plugin.Trial
-dotnet new uninstall C:\Repos\Rulealize.Templates\content\RulealizePlugin
-```
-
-A template installs from a folder, so nothing has to be packed or published to try a change.
-
 ## License
 
 Apache-2.0. That covers this repository; what the template writes into yours is yours, and
 carries no licence of ours.
+
+Changing what the template writes is
+[working on the template](doc/working-on-the-template.md).
