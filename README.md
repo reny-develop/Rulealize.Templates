@@ -4,42 +4,68 @@
 
 ```sh
 dotnet new install Rulealize.Templates
-dotnet new rulealize-plugin -n Rulealize.Plugin.Text
+dotnet new rulealize-plugin -n Rulealize.Plugin.Example
 ```
 
 | Template | |
 | --- | --- |
-| `rulealize-plugin` | a vocabulary: one plugin class, one worked operation, and a rule set that calls it |
+| `rulealize-plugin` | a vocabulary: one plugin class, one worked example of each kind of node, and a rule set that calls them |
 
 The scaffolding is what a template can write. The part it cannot is
 [**writing a vocabulary**](doc/writing-a-vocabulary.md) — what `Build` and `Evaluate` are
-for, how to refuse bad input, what a value is, and what not to add.
+for, how to refuse bad input, what a value is, and what the other two kinds of node are.
+
+`Rulealize.Plugin.Example` above is a name chosen to be thrown away; give yours the name you
+mean to keep.
 
 ## What comes out
 
 ```
-Rulealize.Plugin.Text/
+Rulealize.Plugin.Example/
 ├─ .config/dotnet-tools.json          the rulealize command, pinned
-├─ README.md  LICENSE  .editorconfig  .gitattributes  .gitignore
-├─ Rulealize.Plugin.Text.slnx
+├─ README.md  .editorconfig  .gitattributes  .gitignore
+├─ Rulealize.Plugin.Example.slnx
 ├─ doc/specification.md               a skeleton, with the Decided section it needs
-├─ ruleset/probe.json                 the smallest rule set that calls this vocabulary
-└─ src/Rulealize.Plugin.Text/
-   ├─ Rulealize.Plugin.Text.csproj
-   ├─ TextPlugin.cs                   named, namespaced, and registering the example
-   └─ ExampleNode.cs                  the operation to copy, and then delete
+├─ ruleset/probe.json                 the smallest rule set that calls this vocabulary and
+│                                     still takes three moves to finish, annotated slot by
+│                                     slot with the kind of node each one takes
+└─ src/Rulealize.Plugin.Example/
+   ├─ Rulealize.Plugin.Example.csproj
+   ├─ ExamplePlugin.cs                named, namespaced, and registering the three below
+   ├─ TopNode.cs                      an expression, to copy and then delete
+   ├─ PushNode.cs                     an effect, likewise
+   └─ PileSchemaNode.cs               a schema, likewise
 ```
+
+No `LICENSE`, and no licence declared in the csproj. Which terms a vocabulary ships under is
+its author's to decide, and a template that guessed would be putting somebody else's name in
+your repository.
 
 And it runs, before anything is written:
 
 ```sh
-cd Rulealize.Plugin.Text
+cd Rulealize.Plugin.Example
 dotnet tool restore
 dotnet build                                 # drops the assembly into plugin/
-dotnet rulealize plugins                     # Rulealize.Plugin.Text 1.0.0 (text) -- text.example
+dotnet rulealize plugins                     # Rulealize.Plugin.Example 1.0.0 (example) -- 3 operations
 dotnet rulealize restore ruleset/probe.json  # fetches the standard vocabularies it also names
 dotnet rulealize play ruleset/probe.json     # walks it
 ```
+
+```
+    1. push(token: red)
+    2. push(token: green)
+    3. push(token: blue)
+> 1
+
+    1. push(token: green)
+    2. push(token: blue)
+>
+```
+
+Three moves, a state that grows with each one, and a guard of yours removing the option that
+has just been taken. `rulealize moves` and `rulealize apply` do the same one step at a time,
+against a state document you can keep.
 
 Building copies the assembly into `plugin/`, which is the folder `rulealize` reads and the
 arrangement a deployed application has. **A vocabulary under development and one fetched
@@ -50,23 +76,25 @@ fetches only the rest.
 
 | | |
 | --- | --- |
-| `-n <name>` | the plugin identifier, the project name and the package id. `Rulealize.Plugin.Text` |
-| `--namespace <ns>` | the operation namespace, which every operation is prefixed with. Defaults to the last part of the name, lowercased — `Rulealize.Plugin.Text` gives `text` |
+| `-n <name>` | the plugin identifier, the project name and the package id. `Rulealize.Plugin.Example` |
+| `--namespace <ns>` | the operation namespace, which every operation is prefixed with. Defaults to the last part of the name, lowercased — `Rulealize.Plugin.Example` gives `example` |
 
 The default suits `Rulealize.Plugin.*`. A vendor-qualified identifier wants it given:
 `-n Acme.Deploy.Rules --namespace acme`, because the last part of that name is `rules` and
 [the conventions](https://github.com/reny-develop/Rulealize/blob/main/doc/plugin.md#the-conventions)
 ask for the vendor.
 
-## The example is meant to be deleted
+## The examples are meant to be deleted
 
-`ExampleNode.cs` measures the length of a text, which has nothing to do with whatever you
-are building. Nothing in `-n` or `--namespace` could say what your first operation should
-do, so what is generated is a worked example rather than a guess: the shortest operation in
-which all four steps of an `Evaluate` are visible at once. Copy its shape, write yours,
-delete it.
+Three files, one per kind of node, and between them a pile of tokens: `example.pile` says what
+a state field holds, `example.push` writes a token to it, `example.top` reads the last one
+back. That has nothing to do with whatever you are building, and it is not meant to. Nothing in
+`-n` or `--namespace` could say what your first operation should do, so what is generated is
+a worked example rather than a guess — the shortest three in which an `Evaluate`, an `Apply`
+and a schema's four members are each visible whole.
 
-The same goes for `ruleset/probe.json`, which calls it.
+Copy the shape you need, write yours, delete all three. The same goes for
+`ruleset/probe.json`, which calls them.
 
 ## Working on these templates
 
@@ -80,4 +108,5 @@ A template installs from a folder, so nothing has to be packed or published to t
 
 ## License
 
-Apache-2.0.
+Apache-2.0. That covers this repository; what the template writes into yours is yours, and
+carries no licence of ours.

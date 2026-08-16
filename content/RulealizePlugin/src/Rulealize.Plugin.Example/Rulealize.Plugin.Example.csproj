@@ -18,10 +18,14 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <!--
+      Nothing here decides a licence for you. If you publish this, add the terms you chose:
+      a LICENSE file of your own, plus <PackageLicenseExpression> or <PackageLicenseFile> so
+      that the package carries them. Until then the package simply does not claim any.
+    -->
     <PackageId>Rulealize.Plugin.Example</PackageId>
     <Version>1.0.0</Version>
     <Description>A vocabulary for Rulealize.</Description>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 

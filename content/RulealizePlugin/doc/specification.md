@@ -21,26 +21,75 @@
 
 | Node | Kind |
 | --- | --- |
-| `yourns.example` | expression |
+| `yourns.pile` | schema |
+| `yourns.push` | effect |
+| `yourns.top` | expression |
 
 ---
 
-## `yourns.example`
+## `yourns.pile`
+
+A state field holding an ordered pile of tokens, written as an array of strings.
 
 ### Form
 
 ```jsonc
-{ "op": "yourns.example", "of": <expression:Text> }
+{ "op": "yourns.pile", "max": <integer literal, optional> }
+```
+
+`max` bounds the number of tokens. A negative `max` is a build error.
+
+### The value
+
+A `Sequence` of `Text`. Never `Null`; an empty pile is written `[]`.
+
+### JSON
+
+```jsonc
+"pile": ["red", "green"]
+```
+
+---
+
+## `yourns.push`
+
+An effect. Adds one token to the end of a pile field.
+
+### Form
+
+```jsonc
+{ "op": "yourns.push", "path": <string literal>, "token": <expression:Text> }
+```
+
+`path` names a field of the state schema and is read at build time; naming a field that does
+not exist is a build error.
+
+### How it applies
+
+`token` is evaluated against the snapshot, the pile is read from the draft, and the token is
+appended. Two `yourns.push` effects in one input both land, in the order written.
+
+Evaluation faults when `token` is `Null`: writing is strict.
+
+---
+
+## `yourns.top`
+
+### Form
+
+```jsonc
+{ "op": "yourns.top", "of": <expression:Sequence> }
 ```
 
 ### How it evaluates
 
-The number of characters in `of`. `Null` when `of` is `Null`.
+The last token of `of`. `Null` when `of` is `Null`, and `Null` when the pile is empty:
+reading is lenient.
 
 ### Example
 
 ```jsonc
-{ "op": "yourns.example", "of": "tally" }   // 5
+{ "op": "yourns.top", "of": "$pile" }   // "green"
 ```
 
 ---
@@ -49,9 +98,7 @@ The number of characters in `of`. `Null` when `of` is `Null`.
 
 <!--
   The half of a specification that is worth writing and is usually missing: what was left
-  out, and why. An operation nobody asked for is not free -- it is a name spent, a thing to
-  keep working, and a thing a reader has to skip. Record the ones you turned down and what
-  would change your mind.
+  out, and why. Record the ones you turned down and what would change your mind.
 
   - **No `yourns.something`.** Writable as X plus Y, and nothing has needed it.
 -->

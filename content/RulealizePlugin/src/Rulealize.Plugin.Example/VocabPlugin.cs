@@ -1,6 +1,3 @@
-// Copyright (c) 2026 Reny
-// Licensed under the Apache License, Version 2.0.
-
 using Rulealize.Abstraction.Plugin;
 
 namespace Rulealize.Plugin.Example
@@ -38,7 +35,13 @@ namespace Rulealize.Plugin.Example
             // the right the class that builds it. Adding an operation means adding a line
             // here, and this is the line that gets forgotten -- `rulealize plugins` lists
             // what really registered, so a name missing from it is missing from here.
-            registry.AddExpression("example", ExampleNode.Build);
+            //
+            // Three calls for the three kinds of node, and the call is what decides the kind:
+            // where an operation may appear is settled by which of these registered it, not
+            // by anything the class says about itself.
+            registry.AddSchema("pile", PileSchemaNode.Build);
+            registry.AddEffect("push", PushNode.Build);
+            registry.AddExpression("top", TopNode.Build);
         }
     }
 }

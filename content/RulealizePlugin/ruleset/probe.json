@@ -3,37 +3,76 @@
   "id": "probe",
   "version": "1.0.0",
 
-  // The smallest rule set that calls this vocabulary. It exists to be run, not to mean
-  // anything: `rulealize play ruleset/probe.json` walks it in one move.
+  // The smallest rule set that calls this vocabulary and still moves. It exists to be run,
+  // not to mean anything: three tokens go onto a pile, no two the same in a row, and the
+  // third one ends it.
   //
-  // When you replace the example operation, replace what `measure` calls with yours.
+  //   rulealize moves ruleset/probe.json           what is legal here
+  //   rulealize apply ruleset/probe.json "push(token: red)" > s1.json
+  //   rulealize moves ruleset/probe.json --state s1.json
+  //
+  // Every slot below is labelled with the kind of node that may go in it. That is the whole
+  // of what you need to edit this: a slot takes one kind, and which kind an operation is was
+  // decided by the Add* call that registered it.
 
   "requires": [
-    { "plugin": "Rulealize.Plugin.TypeSchema", "version": "^1.0" },
+    // Every vocabulary this document names, and which versions will do. A runtime without
+    // one refuses the document instead of failing in the middle of a guard.
     { "plugin": "Rulealize.Plugin.State",      "version": "^1.0" },
     { "plugin": "Rulealize.Plugin.Comparison", "version": "^1.0" },
+    { "plugin": "Rulealize.Plugin.Sequence",   "version": "^1.1" },
+    { "plugin": "Rulealize.Plugin.Binding",    "version": "^1.0" },
     { "plugin": "Rulealize.Plugin.Example",    "version": "^1.0" }
   ],
 
   "state": {
+    // Every value under "schema" is a SCHEMA node, and nothing else may go here.
+    // `$pile` below is how the rest of the document reads this field.
     "schema": {
-      "word": { "op": "type.string", "minLength": 1 },
-      "size": { "op": "type.int", "min": 0 }
+      "pile": { "op": "yourns.pile", "max": 3 }
     },
-    "initial": { "word": "tally", "size": 0 }
+
+    // Plain JSON, in whatever shape the schema node above reads and writes.
+    "initial": { "pile": [] }
   },
 
   "inputs": {
-    "measure": {
-      "when": { "op": "cmp.eq", "left": "$size", "right": 0 },
+    // One input: a move somebody can make. Its name is what `moves` prints and `apply`
+    // takes.
+    "push": {
+      // Each parameter's "domain" is an EXPRESSION producing a sequence: the values this
+      // parameter may take. GetValidInputs tries every combination and keeps the ones the
+      // guard holds for, so `moves` will offer push(token: red), push(token: green), ...
+      "params": {
+        "token": { "domain": { "op": "seq.of", "of": ["red", "green", "blue"] } }
+      },
+
+      // "when" is an EXPRESSION returning a boolean: is this input legal here. `@token` is
+      // the parameter above, `$pile` is the state field.
+      "when": {
+        "op": "cmp.ne",
+        "left": { "op": "yourns.top", "of": "$pile" },
+        "right": "@token"
+      },
+
+      // Every element of "effects" is an EFFECT node, and nothing else may go here. They all
+      // read the state as it was when the input arrived, and their writes are committed
+      // together.
       "effects": [
-        { "op": "state.set", "path": "size", "value": { "op": "yourns.example", "of": "$word" } }
+        { "op": "yourns.push", "path": "pile", "token": "@token" }
       ]
     }
   },
 
+  // "when" is an EXPRESSION returning a boolean: is this position final. `seq.count` works
+  // on a pile because the schema node holds one as a Sequence -- a standard operation
+  // reaching into a vocabulary it has never heard of.
   "terminal": {
-    "when": { "op": "cmp.gt", "left": "$size", "right": 0 },
-    "result": "measured"
+    "when": {
+      "op": "cmp.gte",
+      "left": { "op": "seq.count", "source": "$pile" },
+      "right": 3
+    },
+    "result": "full"
   }
 }

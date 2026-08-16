@@ -4,7 +4,7 @@
   "classifications": [ "Rulealize", "Plugin", "Library" ],
   "identity": "Rulealize.Plugin.Template",
   "name": "Rulealize plugin",
-  "description": "A vocabulary for Rulealize: one plugin class, one worked operation, and a rule set that calls it.",
+  "description": "A vocabulary for Rulealize: one plugin class, one worked example of each kind of node (expression, effect, schema), and a rule set that calls them.",
   "shortName": "rulealize-plugin",
   "defaultName": "Rulealize.Plugin.Vocabulary",
   "sourceName": "Rulealize.Plugin.Example",
