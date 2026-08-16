@@ -11,6 +11,10 @@ dotnet new rulealize-plugin -n Rulealize.Plugin.Text
 | --- | --- |
 | `rulealize-plugin` | a vocabulary: one plugin class, one worked operation, and a rule set that calls it |
 
+The scaffolding is what a template can write. The part it cannot is
+[**writing a vocabulary**](doc/writing-a-vocabulary.md) — what `Build` and `Evaluate` are
+for, how to refuse bad input, what a value is, and what not to add.
+
 ## What comes out
 
 ```

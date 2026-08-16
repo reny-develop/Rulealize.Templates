@@ -42,6 +42,10 @@ way there is to find a forgotten `AddExpression`.
 **Then delete `ExampleNode.cs`.** It measures the length of a text, which has nothing to do
 with your vocabulary; it is there to be copied, not kept.
 
+[**Writing a vocabulary**](https://github.com/reny-develop/Rulealize.Templates/blob/main/doc/writing-a-vocabulary.md)
+is the guide to what goes in those files: what `Build` and `Evaluate` are for, how to fail,
+what a value is, and the one trap that has a compiler error waiting for it.
+
 ## License
 
 Apache-2.0.
