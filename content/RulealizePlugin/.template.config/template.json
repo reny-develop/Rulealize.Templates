@@ -1,0 +1,71 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Reny",
+  "classifications": [ "Rulealize", "Plugin", "Library" ],
+  "identity": "Rulealize.Plugin.Template",
+  "name": "Rulealize plugin",
+  "description": "A vocabulary for Rulealize: one plugin class, one worked operation, and a rule set that calls it.",
+  "shortName": "rulealize-plugin",
+  "defaultName": "Rulealize.Plugin.Vocabulary",
+  "sourceName": "Rulealize.Plugin.Example",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "symbols": {
+    "namespace": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "The operation namespace, which every operation is prefixed with. Lowercase letters and digits, starting with a letter. Defaults to the last part of the name."
+    },
+    "lastPart": {
+      "type": "generated",
+      "generator": "regex",
+      "dataType": "string",
+      "parameters": {
+        "source": "name",
+        "steps": [
+          { "regex": "^.*\\.", "replacement": "" },
+          { "regex": "[^A-Za-z0-9]", "replacement": "" }
+        ]
+      }
+    },
+    "lastPartLower": {
+      "type": "generated",
+      "generator": "casing",
+      "parameters": {
+        "source": "lastPart",
+        "toLower": true
+      }
+    },
+    "operationNamespace": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "namespace",
+        "fallbackVariableName": "lastPartLower"
+      },
+      "replaces": "yourns"
+    },
+    "pluginClass": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "lastPart",
+        "fallbackVariableName": "lastPart"
+      },
+      "replaces": "Vocab",
+      "fileRename": "Vocab"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [ "**/bin/**", "**/obj/**", "**/plugin/**" ]
+        }
+      ]
+    }
+  ]
+}

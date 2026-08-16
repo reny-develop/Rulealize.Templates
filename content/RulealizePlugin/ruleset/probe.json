@@ -1,0 +1,39 @@
+{
+  "$schema": "rulealize/ruleset/v1",
+  "id": "probe",
+  "version": "1.0.0",
+
+  // The smallest rule set that calls this vocabulary. It exists to be run, not to mean
+  // anything: `rulealize play ruleset/probe.json` walks it in one move.
+  //
+  // When you replace the example operation, replace what `measure` calls with yours.
+
+  "requires": [
+    { "plugin": "Rulealize.Plugin.TypeSchema", "version": "^1.0" },
+    { "plugin": "Rulealize.Plugin.State",      "version": "^1.0" },
+    { "plugin": "Rulealize.Plugin.Comparison", "version": "^1.0" },
+    { "plugin": "Rulealize.Plugin.Example",    "version": "^1.0" }
+  ],
+
+  "state": {
+    "schema": {
+      "word": { "op": "type.string", "minLength": 1 },
+      "size": { "op": "type.int", "min": 0 }
+    },
+    "initial": { "word": "tally", "size": 0 }
+  },
+
+  "inputs": {
+    "measure": {
+      "when": { "op": "cmp.eq", "left": "$size", "right": 0 },
+      "effects": [
+        { "op": "state.set", "path": "size", "value": { "op": "yourns.example", "of": "$word" } }
+      ]
+    }
+  },
+
+  "terminal": {
+    "when": { "op": "cmp.gt", "left": "$size", "right": 0 },
+    "result": "measured"
+  }
+}

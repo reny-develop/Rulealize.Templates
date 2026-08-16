@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageType>Template</PackageType>
+    <PackageId>Rulealize.Templates</PackageId>
+    <Version>0.1.0</Version>
+    <Authors>Reny</Authors>
+    <Title>Rulealize templates</Title>
+    <Description>dotnet new templates for Rulealize. `rulealize-plugin` creates a vocabulary: one plugin class, one worked operation, and a rule set that calls it.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/reny-develop/Rulealize.Templates</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dotnet-new;templates;rulealize</PackageTags>
+
+    <TargetFramework>net10.0</TargetFramework>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+
+    <!-- The templates carry dot files, and a template without its .template.config is not one. -->
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+  </PropertyGroup>
+
+  <!--
+    A template pack carries no assembly. It is files and one template.json per template, and
+    the SDK reads them; nothing references this package.
+
+    Each file is placed by hand rather than through ContentTargetFolders, which flattens the
+    folder a template lives in and would leave the pack able to hold only one of them.
+  -->
+  <ItemGroup>
+    <Content Include="content\**\*"
+             Exclude="content\**\bin\**;content\**\obj\**;content\**\plugin\**"
+             Pack="true"
+             PackagePath="content\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

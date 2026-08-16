@@ -1,0 +1,50 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!--
+      A missing XML comment on a public member is an error rather than a warning, which is
+      why every node class below is internal: only the plugin class is public, because only
+      it is looked for. Delete this line if you disagree; the rest does not depend on it.
+    -->
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <WarningsAsErrors>$(WarningsAsErrors);NU1605;CS1591</WarningsAsErrors>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>Rulealize.Plugin.Example</PackageId>
+    <Version>1.0.0</Version>
+    <Description>A vocabulary for Rulealize.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The only thing a vocabulary depends on. Not the runtime, and not another plugin. -->
+    <PackageReference Include="Rulealize.Abstraction" Version="0.3.0" />
+  </ItemGroup>
+
+  <!--
+    Building puts the assembly where the tool looks for it, so that `rulealize plugins` and
+    `rulealize check` work from the repository root with nothing copied by hand. It is the
+    same folder `rulealize restore` fills from nuget.org, and a vocabulary that is not
+    published belongs there for the same reason: the folder is what a deployed application
+    reads, and this is one.
+  -->
+  <Target Name="CopyToPluginFolder" AfterTargets="Build">
+    <Copy SourceFiles="$(TargetPath)"
+          DestinationFolder="$(MSBuildProjectDirectory)\..\..\plugin"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>
