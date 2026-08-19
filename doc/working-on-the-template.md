@@ -22,19 +22,12 @@ should be silent, and `rulealize plugins`, `check` and `play` should all run aga
 `-n Acme.Deploy.Rules --namespace acme` — because that is the path where every token
 substitution actually moves.
 
-## Trying the package
-
-The folder route skips packing, so it cannot catch a file the pack leaves out. When the
-`.template.config`, the dot files or the `Content` globs in the csproj have been touched,
-go the whole way:
-
-```sh
-dotnet pack -c Release -o ./feed
-dotnet new install Rulealize.Templates --add-source ./feed
-```
-
-`dotnet new install <id>` resolves the id against the configured NuGet sources, so a folder
-named with `--add-source` behaves exactly as nuget.org will.
+**What a folder install cannot tell you is whether the package is intact.** It reads the
+folder directly, so it never runs the csproj's `Content` globs or `NoDefaultExcludes`, and
+what those exist for is the dot files, `.config/dotnet-tools.json` and `.template.config`
+itself — each one something the generated project is broken without, and none of them
+visible as missing from this side. The folder route succeeds either way. When one of them
+has been touched, check a packed package rather than the folder.
 
 ## What the substitutions are
 
