@@ -58,7 +58,7 @@ An effect. Adds one token to the end of a pile field.
 ### Form
 
 ```jsonc
-{ "op": "yourns.push", "target": <expression denoting a yourns.pile field>, "token": <expression:Text> }
+{ "op": "yourns.push", "target": <expression:Sequence>, "token": <expression:Text> }
 ```
 
 `target` is written `"$pile"`. It is resolved at build time: a target that does not denote a
