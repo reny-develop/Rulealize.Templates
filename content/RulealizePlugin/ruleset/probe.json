@@ -27,7 +27,8 @@
 
   "state": {
     // Every value under "schema" is a SCHEMA node, and nothing else may go here.
-    // `$pile` below is how the rest of the document reads this field.
+    // `$pile` below is how the rest of the document names this field, to read it and to
+    // point an effect at it.
     "schema": {
       "pile": { "op": "yourns.pile", "max": 3 }
     },
@@ -59,7 +60,7 @@
       // read the state as it was when the input arrived, and their writes are committed
       // together.
       "effects": [
-        { "op": "yourns.push", "path": "pile", "token": "@token" }
+        { "op": "yourns.push", "target": "$pile", "token": "@token" }
       ]
     }
   },

@@ -117,14 +117,22 @@ rule set may write.
 | `RequireExpression("of")` | a child expression | missing is a build error |
 | `OptionalExpression("separator")` | the same, or `null` | absent is legal |
 | `RequireExpressionArray("of")` | `ImmutableArray<ExpressionNode>`, in order | order is part of your contract |
+| `RequireSchema("cell")` | a child **schema** node | how a schema takes the type of what it holds |
 | `RequireString("as")` | a **literal** string from the document | writing an expression there is a build error |
+| `OptionalString("notation")` / `RequireStringArray("values")` | the same, absent or as a list | |
 | `RequireInt32("width")` / `OptionalInt32("min", 0)` | a literal number | |
 | `OptionalBoolean("nullable", false)` | a literal boolean | |
 
-The last three are the distinction worth understanding: **a static key is read at build
+The literal ones are the distinction worth understanding: **a static key is read at build
 time and cannot be computed.** A board's width, the members of an enumeration, the name a
 sequence binds its element to — these are facts about the document, not about a position,
 and asking for them as literals is what lets them be checked once.
+
+When your node's shape does not fit any of them — a map of named subexpressions, a set of
+case keys — `context.Node` is the JSON itself, `GetRequiredProperty` and `TryGetProperty`
+reach into it, and `BuildExpression(element, label)` turns a piece you found that way into a
+node with a label the diagnostics can use. That is the escape hatch, and needing it is
+ordinary; `branch.match` is written with it.
 
 ### Refusing bad input
 
@@ -212,6 +220,9 @@ two unrelated things: what `branch.match` can match on, and what may be an input
 A value with no canonical text cannot survive the round trip through an input document —
 which is why compound input arguments are tuples and not records.
 
+`Opaque` is the one you would be adding, and [section 8](#8-a-value-of-your-own) is when to.
+It is last because the answer is usually one of the six above.
+
 **One trap, and the compiler catches it.** A sequence must survive being enumerated twice.
 
 ```csharp
@@ -266,18 +277,10 @@ anything, and it may appear in an input's `effects` array and nowhere else — u
 expression is a build error, so the two meanings never have to be told apart by reading.
 
 ```csharp
-internal sealed class PushNode(StatePath path, ExpressionNode token) : EffectNode
+internal sealed class PushNode(StatePath pile, ExpressionNode token) : EffectNode
 {
-    public static EffectNode Build(INodeBuildContext context)
-    {
-        string field = context.RequireString("path");
-        if (!context.State.TryResolve(field, out StatePath? path))
-        {
-            throw context.Error("path", $"'{field}' is not a field of the state schema.");
-        }
-
-        return new PushNode(path, context.RequireExpression("token"));
-    }
+    public static EffectNode Build(INodeBuildContext context) =>
+        new PushNode(TargetPile.Resolve(context), context.RequireExpression("token"));
 
     public override void Apply(IEvaluationContext context, IStateDraft draft)
     {
@@ -287,23 +290,85 @@ internal sealed class PushNode(StatePath path, ExpressionNode token) : EffectNod
             throw new RuleEvaluationException("example.push.token", "There is nothing to push.");
         }
 
-        ImmutableArray<RuleValue> pile = [.. draft.Get(path).AsSequence("example.push.path"), pushed];
-        draft.Set(path, RuleValue.Sequence(pile));
+        ImmutableArray<RuleValue> tokens = [.. draft.Get(pile).AsSequence("example.push.target"), pushed];
+        draft.Set(pile, RuleValue.Sequence(tokens));
     }
 }
 ```
 
 ```jsonc
-{ "op": "example.push", "path": "pile", "token": "red" }
+{ "op": "example.push", "target": "$pile", "token": "red" }
 ```
 
-`Build` is the same method it was for an expression, and it is where a path becomes a
-`StatePath`. **A field name is a static key**, resolved against the schema once at build
-time, so a rule set that names a field which does not exist fails before any position exists:
+### The field it writes to
+
+`Build` is the same method it was for an expression, and for an effect it is where the target
+becomes a `StatePath`. It is two checks, and this is the one piece of an effect that does not
+follow from anything else in this guide.
+
+```csharp
+internal static class TargetPile
+{
+    public static StatePath Resolve(INodeBuildContext context)
+    {
+        ExpressionNode target = context.RequireExpression("target");
+        if (target is not IStateLocation location)
+        {
+            throw context.Error("target", "must denote a state field, such as \"$pile\".");
+        }
+
+        if (location.Path.Schema is not PileSchemaNode)
+        {
+            throw context.Error("target", $"'{location.Path}' is not a pile.");
+        }
+
+        return location.Path;
+    }
+}
+```
+
+**`"$pile"` is an expression, and it builds into a node belonging to the state vocabulary** —
+an assembly yours does not reference and cannot inspect. What it can ask for is
+`IStateLocation`, which is in the abstraction that both of you already depend on, and which
+exists for exactly this. Neither vocabulary learns anything about the other.
+
+**The second check is the one that pays.** A `StatePath` carries the schema node of the field
+it resolved to, so an effect can establish here that it was pointed at the sort of field it
+knows how to write:
 
 ```
-  /inputs/push/effects[0]/path: 'pyle' is not a field of the state schema.
+  /inputs/push/effects[0]/target: 'counter' is not a pile.
 ```
+
+That is a sentence about the document, said before any position exists. Without it the same
+mistake is an evaluation fault on the first transition that reaches the effect — further from
+the line at fault, and only if a test happens to reach it.
+
+### The other way, and when it is right
+
+There is a second way to name a field, and the state vocabulary uses it: `state.set` and
+`state.update` take a literal `"path"` and resolve it with `context.State.TryResolve`.
+
+```csharp
+string field = context.RequireString("path");
+if (!context.State.TryResolve(field, out StatePath? path))
+{
+    throw context.Error("path", $"'{field}' is not a field of the state schema.");
+}
+```
+
+**Which one you want follows from who owns the type of the field.** `state.set` writes
+whatever a field holds, so there is no schema it could check against and nothing `$field`
+would add. Your effect is in the other position: you shipped the schema node, the effect only
+means anything against a field of that schema, and so the check above is available to you and
+is not available to `state.set`. Take `target`, and check it — which is what `grid.set` and
+`rec.set` do, for the same reason.
+
+There is a second gain, and it is the document's. A field written `$pile` in every guard it
+is read from should not turn into a bare `"pile"` the moment an effect points at it, and with
+`target` it does not. That the target is an expression costs nothing either: a rule set that
+writes `"$pile"` needs the state vocabulary in its `requires`, which it already did to read
+the field at all.
 
 `Apply` is where an effect differs, and everything about it follows from **two places to
 look and one place to write**.
@@ -431,6 +496,47 @@ It is not a place to reject anything. A value that does not satisfy the schema i
 `Validate`'s business, and returning something the schema disallows would only move the fault
 somewhere harder to read.
 
+### A schema with a schema inside
+
+A pile of anything, a board of anything, a list of anything: the moment your schema holds
+values rather than being one, the type of what it holds is **another schema node**, and you
+take it the way you take an expression.
+
+```csharp
+public static SchemaNode Build(INodeBuildContext context) =>
+    new BoardSchemaNode(DeclaredGeometry.Read(context), context.RequireSchema("cell"));
+```
+
+```jsonc
+"board": { "op": "grid.board", "width": 8, "height": 8, "cell": { "op": "type.string" } }
+```
+
+You never learn what the cell is. `Validate`, `ReadJson` and `WriteJson` each delegate the
+part of the value that is not yours, which is how a board holds cells from a vocabulary that
+has not been written yet.
+
+**What you do owe it is a place.** The cell schema reports its violations unqualified —
+`Expected one of black, white.` — because it does not know it is in a board, and only you
+know which square was being read. So wrap the sink on the way down:
+
+```csharp
+internal sealed class SquareValidationSink(ISchemaValidationSink inner, string square) : ISchemaValidationSink
+{
+    public bool HasViolations => inner.HasViolations;
+
+    public void Violation(string message) => inner.Violation(square, message);
+
+    public void Violation(string relativePath, string message) =>
+        inner.Violation($"{square}/{relativePath}", message);
+}
+
+cell.Validate(board[x, y], new SquareValidationSink(sink, geometry.Format(x, y)));
+```
+
+That is the difference between `/state/board: Expected one of black, white.` and a message
+that names the square. Wrappers compose, so a list of records of coordinates reports the
+coordinate rather than the field.
+
 ### Introducing a name
 
 Any of the three kinds may bind a name for a subexpression, the way `seq.where` does with
@@ -551,12 +657,63 @@ long as saving the file. Edit, check, repeat; run it before you wonder why `play
 
 ```
 'ruleset/probe.json' does not compile against 'plugin':
-  /inputs/push/effects[0]/path: 'pyle' is not a field of the state schema.
+  /inputs/push/effects[0]/target: 'counter' is not a pile.
 ```
 
 The path is a path into **your document**, so the first `/` names the slot and the rest walks
 down to the property at fault. Nothing here reports a line number, because nothing here read
 your file as text.
+
+---
+
+## 8. A value of your own
+
+Read the end of section 7 first, because it is the answer most of the time: **a kind the
+value model already has buys a vocabulary's worth of operations for nothing.** A graph whose
+nodes are `Text` gets `cmp.eq`, `seq.any` and `branch.match` on its node names the day it
+ships. The same graph with a `NodeValue` of its own gets none of them, and owes a canonical
+text implementation for the privilege.
+
+So the question is not "what would model this best" but **"is there anything the existing
+kinds cannot say here"**. Usually there is not. When there is — a coordinate, which is a pair
+that has to travel as one value and compare by position; a board, which is a rectangle and
+not a list — subclass `OpaqueValue`.
+
+```csharp
+internal sealed class CoordinateValue(BoardGeometry geometry, int x, int y) : OpaqueValue
+{
+    public int X => x;
+
+    public int Y => y;
+
+    public override string TypeTag => "grid/coord";
+
+    public override string? GetCanonicalText() => geometry.Format(x, y);
+
+    public override int GetHashCode() => HashCode.Combine("grid/coord", x, y);
+
+    protected override bool EqualsCore(OpaqueValue other) =>
+        other is CoordinateValue coordinate && coordinate.X == x && coordinate.Y == y;
+}
+```
+
+| | |
+| --- | --- |
+| `TypeTag` | what this value is. **Two opaque values with different tags are never equal**, and the check is done for you, so namespace it |
+| `EqualsCore` | equality against a value whose tag already matches. This is the only comparison you write |
+| `GetHashCode` | the ordinary obligation that comes with equality. Include the tag |
+| `GetCanonicalText` | how it is written as text. Returns `null` by default, and **that default is often right** |
+
+**Whether you need a canonical text is decided by where the value goes**, and the two cases
+are both in the grid vocabulary. A coordinate appears in `inputs.*.params`, so it leaves
+through `GetValidInputs` as `{ "at": "d3" }` and comes back in from an input document as the
+same text; without a text form it could not be a parameter at all. A board never leaves that
+way — it lives in the state, where **its schema node serializes it** — so `BoardValue`
+implements none.
+
+The cost of the text form is not the method. It is that a node accepting a coordinate should
+accept the text too, since that is what arrives from a document, and your specification has
+to say so. That is the sentence to weigh before deciding a `Text` would not have done.
 
 ---
 
@@ -834,11 +991,23 @@ document left over from an earlier version of the document says so instead of ap
 
 ## Where the rest is
 
+This guide is about **judgement** — which of two shapes to reach for, when a value of your
+own earns its keep, what to decide at build time. The **mechanism** it calls is documented
+where the types are defined, and that is the first row below: when you want the full list of
+what a factory may ask for, or the members of a kind of node this guide showed you one of, go
+there rather than reading a vocabulary's source for it.
+
 | | |
 | --- | --- |
+| [Writing a plugin, in C#](https://github.com/reny-develop/Rulealize.Abstraction) | the reference for all of the above: everything a factory may ask for, the schema members, `IStateLocation`, `OpaqueValue`, sugar |
 | [The value model](https://github.com/reny-develop/Rulealize.Abstraction/blob/main/doc/value-model.md) | the kinds, equality, null propagation, and what each kind of node may do |
-| [The standard vocabulary](https://github.com/reny-develop/Rulealize/blob/main/doc/plugin.md) | the twelve, what each provides, and the conventions for one you keep to yourself |
+| [The standard vocabulary](https://github.com/reny-develop/Rulealize/blob/main/doc/plugin.md) | what each provides, and the conventions for one you keep to yourself |
 | [The command line](https://github.com/reny-develop/Rulealize.Cli) | every command above, and what it will not do |
 | [Rule sets worth reading](https://github.com/reny-develop/Rulealize/blob/main/doc/README.md) | reversi, chess, shogi, a shift roster and a deployment pipeline, each written out in full |
-| A specification per plugin | reached from the table above. Read one next to your own |
+| A specification per plugin | reached from the table above. [`Rulealize.Plugin.Grid`](https://github.com/reny-develop/Rulealize.Plugin.Grid) is the one that provides all three kinds of node |
 | [The design record](https://github.com/reny-develop/Rulealize/blob/main/doc/README.md#the-design-record) | why the DSL is shaped this way. Not required reading, and the best evidence that it works |
+
+Reading a whole vocabulary next to your own is worth an hour once you have something
+working, and Grid is the one to open: it provides all three kinds of node and values of its
+own, so what it shows is how much of each a vocabulary turns out to need — the one thing no
+reference can tell you.

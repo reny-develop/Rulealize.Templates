@@ -58,11 +58,11 @@ An effect. Adds one token to the end of a pile field.
 ### Form
 
 ```jsonc
-{ "op": "yourns.push", "path": <string literal>, "token": <expression:Text> }
+{ "op": "yourns.push", "target": <expression denoting a yourns.pile field>, "token": <expression:Text> }
 ```
 
-`path` names a field of the state schema and is read at build time; naming a field that does
-not exist is a build error.
+`target` is written `"$pile"`. It is resolved at build time: a target that does not denote a
+state field, or denotes one whose schema is not `yourns.pile`, is a build error.
 
 ### How it applies
 

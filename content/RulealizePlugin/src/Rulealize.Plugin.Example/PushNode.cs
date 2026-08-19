@@ -15,24 +15,15 @@ namespace Rulealize.Plugin.Example
     //
     // The JSON it answers to:
     //
-    //   { "op": "yourns.push", "path": "pile", "token": "red" }
+    //   { "op": "yourns.push", "target": "$pile", "token": "red" }
     //
-    internal sealed class PushNode(StatePath path, ExpressionNode token) : EffectNode
+    internal sealed class PushNode(StatePath pile, ExpressionNode token) : EffectNode
     {
         public static EffectNode Build(INodeBuildContext context)
         {
             ArgumentNullException.ThrowIfNull(context);
 
-            // A static key: read here, at build time, from a literal in the document. Writing
-            // an expression under "path" is refused, which is what lets the field be resolved
-            // against the schema once instead of on every transition.
-            string field = context.RequireString("path");
-            if (!context.State.TryResolve(field, out StatePath? path))
-            {
-                throw context.Error("path", $"'{field}' is not a field of the state schema.");
-            }
-
-            return new PushNode(path, context.RequireExpression("token"));
+            return new PushNode(TargetPile.Resolve(context), context.RequireExpression("token"));
         }
 
         // Read from context, write to draft. Everything this evaluates through the context
@@ -56,8 +47,38 @@ namespace Rulealize.Plugin.Example
             // draft.Get rather than context, deliberately: this is the one read that must see
             // what an earlier effect wrote, so that two pushes in one input both land. The
             // schema node decides what a pile is; this only adds to the end of one.
-            ImmutableArray<RuleValue> pile = [.. draft.Get(path).AsSequence("yourns.push.path"), pushed];
-            draft.Set(path, RuleValue.Sequence(pile));
+            ImmutableArray<RuleValue> tokens = [.. draft.Get(pile).AsSequence("yourns.push.target"), pushed];
+            draft.Set(pile, RuleValue.Sequence(tokens));
+        }
+    }
+
+    // How an effect reaches a field it is allowed to write to.
+    //
+    // The target is written "$pile", which builds into a node belonging to the state
+    // vocabulary -- an assembly this one does not reference and cannot inspect. What it can
+    // ask for is IStateLocation, the contract both reach through the abstraction, and take
+    // the resolved path from it.
+    //
+    // The second check is the one worth copying. A StatePath carries the schema of the field
+    // it resolved to, so pointing this effect at a field that is not a pile is refused here,
+    // at build time, with the path in the document where it happened -- instead of faulting
+    // on the first transition that reaches it.
+    internal static class TargetPile
+    {
+        public static StatePath Resolve(INodeBuildContext context)
+        {
+            ExpressionNode target = context.RequireExpression("target");
+            if (target is not IStateLocation location)
+            {
+                throw context.Error("target", "must denote a state field, such as \"$pile\".");
+            }
+
+            if (location.Path.Schema is not PileSchemaNode)
+            {
+                throw context.Error("target", $"'{location.Path}' is not a pile.");
+            }
+
+            return location.Path;
         }
     }
 }
