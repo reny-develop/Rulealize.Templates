@@ -315,7 +315,7 @@ look and one place to write**.
 | `draft.Set` | the only way to change anything |
 
 **Read from `context`, write to `draft`.** Snapshot semantics are what let an input be
-written in the order a person would describe it. Othello's `place` puts the stone down and
+written in the order a person would describe it. Reversi's `place` puts the stone down and
 then flips what it captured; under sequential semantics the flip would rescan a board that
 already had the new stone on it, and the rule author would have to hoist the computation into
 a `bind.let` to get the right answer.
