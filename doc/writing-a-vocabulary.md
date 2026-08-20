@@ -265,8 +265,12 @@ memoizes definition results across candidates and may skip a binding nobody read
 operation that reaches outside turns a combinatorial search into a combinatorial number of
 queries.
 
-Values that change belong in the state. **The current date is a field handed to an
-operation, not something an operation goes and finds out.**
+Values that change belong in the state. Nothing stops an operation from reading a clock or
+a database instead — the runtime does not check, and the rule set cannot tell. The cost is
+the paragraph above, plus one more: the snapshot covers the state document and nothing
+else, so a question answered from outside it can come back two ways inside a single call.
+That is why the current date is usually a field handed to an operation rather than
+something the operation goes and finds out.
 
 ---
 
