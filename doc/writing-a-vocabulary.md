@@ -622,7 +622,7 @@ Put an operation in the wrong slot and it is refused by name, before anything ru
 | `"$pile"`, `"@token"` | **sugar**: a one-character prefix a vocabulary reserved |
 
 Sugar is the part that reads like magic and is not. `rulealize plugins` prints the character
-next to the vocabulary that owns it, and there are only three:
+next to the vocabulary that reserved it, and three are in use:
 
 | | | |
 | --- | --- | --- |
@@ -632,6 +632,23 @@ next to the vocabulary that owns it, and there are only three:
 
 Each is shorthand for an operation you could have written out, and each needs its vocabulary
 in `requires` — which is why `probe.json` names `Binding` although no `bind.*` appears in it.
+
+**A character is not owned**, so yours may reserve one already in use. What decides a
+shorthand is then the document, not the loaded set: one that names a single claimant in
+`requires` writes the bare form, and one that could mean either says which vocabulary between
+the character and the rest — `"$state:pile"`. Left bare where `requires` does not settle it,
+it is refused rather than guessed at:
+
+```
+'ruleset/probe.json' does not compile against 'plugin':
+  /inputs/push/when/left/of: '$' is a shorthand for more than one vocabulary here, so this
+  does not say which was meant. Write '$state:', or the namespace of whichever of state,
+  example you mean, or name just one of them in 'requires'.
+```
+
+**This wants Rulealize 0.4.0 or later**, which is what the `rulealize` pinned in
+`.config/dotnet-tools.json` carries. An older command line refuses the second vocabulary to
+reserve a character as it reads the folder, before any document is looked at.
 
 ### Your own operation is not a special case
 
@@ -757,8 +774,8 @@ so a node registered with the wrong one shows up here rather than as a puzzling 
 document later.
 
 One vocabulary is what a folder holds before `restore` has fetched the rest; afterwards this
-lists all five, and the reserved-prefix characters `$` and `@` appear beside the two that own
-them.
+lists all five, and the reserved-prefix characters `$` and `@` appear beside the two that
+reserved them.
 
 When the class itself did not load, the count says `0 vocabularies` and the command asks the
 runtime why, since a folder sweep passes over what it cannot use in silence:
@@ -999,27 +1016,48 @@ Everything above ran with the vocabulary in your own `plugin` folder, credited r
 fetched. Publishing changes one thing that is not about packaging: **the namespace stops
 being yours alone to decide.**
 
-`yourns` is not a name inside your assembly. A namespace, and the one-character prefix beside
-it, have **exactly one owner across the whole ecosystem** — and the runtime refuses two
-plugins claiming either when they are loaded into the same folder, which is after both were
-published and after rule sets naming them are in production. Nobody loads two plugins that
-have never been loaded together, and that is exactly the pair that collides.
+`yourns` is not a name inside your assembly. A namespace has **exactly one owner across the
+whole ecosystem** — and the runtime refuses two plugins claiming one when they are loaded into
+the same folder, which is after both were published and after rule sets naming them are in
+production. Nobody loads two plugins that have never been loaded together, and that is exactly
+the pair that collides.
 
 [**The plugin index**](https://reny-develop.github.io/Rulealize.Registry/) is the only party
 that sees them. Read its claim table before you settle on a namespace; its operation pages
 answer the other direction — which vocabulary owns `grid.ray` — which is the question a
 package feed structurally cannot.
 
+The one-character prefix beside a namespace is not like that. It has no owner: two vocabularies
+may reserve the same character and load together, and
+[section 7](#everywhere-an-expression-goes-three-things-may-be-written) has what a document
+writes when both are present.
+
 ### Claiming yours
 
 Open a pull request against [Rulealize.Registry](https://github.com/reny-develop/Rulealize.Registry)
-adding your plugin to `ledger/claim.json`. You do not write that entry: the same tool that
-made the file prints yours from your own assembly, and
-[the grant policy](https://github.com/reny-develop/Rulealize.Registry/blob/main/doc/policy.md#how-to-claim)
-has the command and where the result goes. CI then fetches that package, loads it the way an
-application does, re-derives the entry and fails on any difference — **so the only part you
-can get wrong is which package you named.** Nothing is described in a form; a submission is a
-package identifier.
+adding one line to `ledger/submitted.json`, in identifier order:
+
+```json
+    { "id": "Acme.Deploy.Rules", "version": "0.1.0", "namespace": "acme", "prefix": null },
+```
+
+That is the whole submission. **The operations are not in it** — nothing you write there has
+to be kept in step with a release, because the only list of what your plugin registers is the
+one CI reads out of your assembly. `version` is the release your claims are read at, and it is
+your `PluginManifest`'s version rather than your project file's; `prefix` is your shorthand
+character or `null`, written rather than left out.
+
+**Nothing you state is believed.** CI fetches that package, loads it the way an application
+does, and refuses the pull request if the assembly says anything else — a different namespace,
+a character you did not declare, a manifest version that is not the one it was fetched at, or
+a `PluginManifest.Id` that is not the package you named. Nothing is described in a form: every
+field points at something the package already says.
+[The grant policy](https://github.com/reny-develop/Rulealize.Registry/blob/main/doc/policy.md#how-to-claim)
+is what the submission is held to.
+
+**A submission that adds one line and touches nothing else merges when the checks pass**, with
+nobody reading it first. A pull request that touches anything else is closed — that repository
+indexes plugins and takes nothing else this way, and an issue is where the rest belongs.
 
 **A namespace cannot be reserved in advance.** Every entry is derived by loading an assembly,
 and there is nothing to load before a package exists — so a reservation could only be a claim
@@ -1038,12 +1076,16 @@ the identifier the ledger records, and `restore` asks nuget.org for exactly the 
 restored by anybody.
 
 A shorthand character — the `"$pile"` sugar from
-[section 7](#everywhere-an-expression-goes-three-things-may-be-written) — is the one claim
-granted by review rather than by arriving first, and **the default answer is no.** Three of
-the dozen or so that will ever exist are spent;
+[section 7](#everywhere-an-expression-goes-three-things-may-be-written) — is recorded rather
+than granted. Three are in use and **none of them is taken**: reserving one another vocabulary
+already reserved is admitted without comment, because what it costs the documents that write
+it is a namespace in front and nothing else. What is refused is a character the mechanism
+cannot survive — one ordinary data might begin with, or one carrying meaning inside a value,
+like the `|` that separates a tuple's components. Those are listed in the registry's
+`ledger/reserved.json`, and
 [the grant policy](https://github.com/reny-develop/Rulealize.Registry/blob/main/doc/policy.md#shorthand-characters)
-sets out the four things a request has to clear. A refusal costs one plugin some verbosity; a
-grant costs every future plugin one of the last characters.
+has the two things worth knowing before reserving one, neither of which is a condition. A
+letter, a digit and whitespace the runtime refuses whatever any of that says.
 
 **Releases after the first need no pull request.** The ledger holds one row per plugin
 because a claim is permanent; the index rereads nuget.org daily, picks up new versions, and
