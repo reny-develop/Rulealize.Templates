@@ -13,7 +13,9 @@ dotnet new rulealize-plugin -n Rulealize.Plugin.Example
 
 The scaffolding is what a template can write. The part it cannot is
 [**writing a vocabulary**](doc/writing-a-vocabulary.md) — what `Build` and `Evaluate` are
-for, how to refuse bad input, what a value is, and what the other two kinds of node are.
+for, how to refuse bad input, what a value is, what the other two kinds of node are, and
+[what publishing changes](doc/writing-a-vocabulary.md#when-you-publish-it): the namespace
+stops being yours alone to decide, and is claimed in an index rather than in your assembly.
 
 `Rulealize.Plugin.Example` above is a name chosen to be thrown away; give yours the name you
 mean to keep.

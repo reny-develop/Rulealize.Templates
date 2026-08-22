@@ -1013,10 +1013,13 @@ package feed structurally cannot.
 ### Claiming yours
 
 Open a pull request against [Rulealize.Registry](https://github.com/reny-develop/Rulealize.Registry)
-adding the plugin to `ledger/claim.json`: identifier, version, namespace, prefix, operations.
-CI fetches that package, loads it the way an application does, re-derives the entry and fails
-on any difference — **so the only part you can get wrong is which package you named.**
-Nothing is described in a form; a submission is a package identifier.
+adding your plugin to `ledger/claim.json`. You do not write that entry: the same tool that
+made the file prints yours from your own assembly, and
+[the grant policy](https://github.com/reny-develop/Rulealize.Registry/blob/main/doc/policy.md#how-to-claim)
+has the command and where the result goes. CI then fetches that package, loads it the way an
+application does, re-derives the entry and fails on any difference — **so the only part you
+can get wrong is which package you named.** Nothing is described in a form; a submission is a
+package identifier.
 
 **A namespace cannot be reserved in advance.** Every entry is derived by loading an assembly,
 and there is nothing to load before a package exists — so a reservation could only be a claim
