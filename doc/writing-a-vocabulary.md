@@ -993,6 +993,64 @@ document left over from an earlier version of the document says so instead of ap
 | `--limit <n>` | candidates `GetValidInputs` may try. Default 10000 |
 | `--json` | `moves`, as the runtime writes them |
 
+## When you publish it
+
+Everything above ran with the vocabulary in your own `plugin` folder, credited rather than
+fetched. Publishing changes one thing that is not about packaging: **the namespace stops
+being yours alone to decide.**
+
+`yourns` is not a name inside your assembly. A namespace, and the one-character prefix beside
+it, have **exactly one owner across the whole ecosystem** — and the runtime refuses two
+plugins claiming either when they are loaded into the same folder, which is after both were
+published and after rule sets naming them are in production. Nobody loads two plugins that
+have never been loaded together, and that is exactly the pair that collides.
+
+[**The plugin index**](https://reny-develop.github.io/Rulealize.Registry/) is the only party
+that sees them. Read its claim table before you settle on a namespace; its operation pages
+answer the other direction — which vocabulary owns `grid.ray` — which is the question a
+package feed structurally cannot.
+
+### Claiming yours
+
+Open a pull request against [Rulealize.Registry](https://github.com/reny-develop/Rulealize.Registry)
+adding the plugin to `ledger/claim.json`: identifier, version, namespace, prefix, operations.
+CI fetches that package, loads it the way an application does, re-derives the entry and fails
+on any difference — **so the only part you can get wrong is which package you named.**
+Nothing is described in a form; a submission is a package identifier.
+
+**A namespace cannot be reserved in advance.** Every entry is derived by loading an assembly,
+and there is nothing to load before a package exists — so a reservation could only be a claim
+no artifact backs. Publish `0.1.0` on the day you choose the name. That is cheap, every feed
+already expects it, and it is the only form of a claim this index is able to record.
+
+**Vendor-qualify it.** `acme`, not `deploy` — a namespace with an audience of one still
+occupies a name in a space everyone shares. The standard distribution's namespaces are taken,
+and `str`, `time`, `set` and `fmt` are held against vocabularies that do not exist yet: those
+are refused rather than granted, because there is no supply of others.
+
+**Publish under the identifier your manifest declares.** Nothing enforces that
+`PluginManifest.Id` and the package name are one string, but the index fetches a submission by
+the identifier the ledger records, and `restore` asks nuget.org for exactly the name a
+`requires` wrote. Published under another name, a plugin cannot be admitted here and cannot be
+restored by anybody.
+
+A shorthand character — the `"$pile"` sugar from
+[section 7](#everywhere-an-expression-goes-three-things-may-be-written) — is the one claim
+granted by review rather than by arriving first, and **the default answer is no.** Three of
+the dozen or so that will ever exist are spent;
+[the grant policy](https://github.com/reny-develop/Rulealize.Registry/blob/main/doc/policy.md#shorthand-characters)
+sets out the four things a request has to clear. A refusal costs one plugin some verbosity; a
+grant costs every future plugin one of the last characters.
+
+**Releases after the first need no pull request.** The ledger holds one row per plugin
+because a claim is permanent; the index rereads nuget.org daily, picks up new versions, and
+checks that their claims did not move.
+
+And if you never publish at all: a vocabulary handed to `AddPlugin` from an application's own
+assembly gets no entry and is under the same obligation anyway. It cannot collide with the
+ledger, but it can collide with a package that arrives later — by which time its rule sets
+are in production.
+
 ## Where the rest is
 
 This guide is about **judgement** — which of two shapes to reach for, when a value of your
@@ -1009,7 +1067,6 @@ there rather than reading a vocabulary's source for it.
 | [The command line](https://github.com/reny-develop/Rulealize.Cli) | every command above, and what it will not do |
 | [Rule sets worth reading](https://github.com/reny-develop/Rulealize/blob/main/doc/README.md) | reversi, chess, shogi, a shift roster and a deployment pipeline, each written out in full |
 | A specification per plugin | reached from the table above. [`Rulealize.Plugin.Grid`](https://github.com/reny-develop/Rulealize.Plugin.Grid) is the one that provides all three kinds of node |
-| [The design record](https://github.com/reny-develop/Rulealize/blob/main/doc/README.md#the-design-record) | why the DSL is shaped this way. Not required reading, and the best evidence that it works |
 
 Reading a whole vocabulary next to your own is worth an hour once you have something
 working, and Grid is the one to open: it provides all three kinds of node and values of its
