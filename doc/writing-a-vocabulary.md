@@ -22,9 +22,15 @@ is one of them. The names are `example.*` because the project was called
 | Expression | `ExpressionNode` | `Evaluate(context)` | `AddExpression` | guards, definitions, effect arguments, domains, terminal |
 | Effect | `EffectNode` | `Apply(context, draft)` | `AddEffect` | an input's `effects` only |
 | Schema | `SchemaNode` | four members | `AddSchema` | `state.schema` only |
+| Draw | `ExpressionNode` | `Evaluate(context)` | `AddDraw` | an input's `effects` only, at any depth |
 
 Most vocabularies are expressions and nothing else, which is why they come first. **The call
 that registered an operation is what decides its kind** — not the class, and not the name.
+
+Three kinds of node and four kinds of operation: a draw builds an expression node like
+anything else that produces a value, so the fourth row shares a base class with the first.
+What `AddDraw` settles is where it may be written, and [§9](#9-something-nobody-chooses) is
+the rest of it. The template ships one operation of each of the first three.
 
 ---
 
@@ -735,6 +741,99 @@ implements none.
 The cost of the text form is not the method. It is that a node accepting a coordinate should
 accept the text too, since that is what arrives from a document, and your specification has
 to say so. That is the sentence to weigh before deciding a `Text` would not have done.
+
+---
+
+## 9. Something nobody chooses
+
+The fourth kind. A **draw** produces a value like an expression and is written like one, and
+what makes it its own kind is the one place it may appear: inside an input's `effects`, at
+any depth, and nowhere else.
+
+```csharp
+registry.AddDraw("deal", DealNode.Build);
+```
+
+That call is the whole of the difference. `DealNode` derives from `ExpressionNode` and
+overrides `Evaluate` exactly as `TopNode` does; registering it with `AddDraw` rather than
+`AddExpression` is what tells the runtime to refuse it in a guard, in a parameter's domain,
+in an `actor`, in `terminal` and in a definition's body — checked while the rule set is
+compiled, with a pointer to the node.
+
+```csharp
+internal sealed class DealNode(ExpressionNode of) : ExpressionNode
+{
+    public static ExpressionNode Build(INodeBuildContext context) =>
+        new DealNode(context.RequireExpression("of"));
+
+    public override RuleValue Evaluate(IEvaluationContext context)
+    {
+        List<DrawCandidate> candidates = [];
+        foreach (RuleValue value in of.Evaluate(context).AsSequence("example.deal.of"))
+        {
+            candidates.Add(DrawCandidate.Even(value));
+        }
+
+        // Everything above is a pure function of the snapshot. The one thing that is not is
+        // which of these comes back, and that is not yours to decide.
+        return context.Draw(candidates.ToArray(), "example.deal.of");
+    }
+}
+```
+
+**Nothing here chooses.** You work out what could come out and how likely each of those is,
+hand the list to `IEvaluationContext.Draw`, and the runtime says which one this evaluation is
+for. An operation that read a clock or called `Random` would not be a smaller version of
+this — it would be a different thing that happens to return a value, and three guarantees
+would go with it: a guard would answer differently for each candidate `GetValidInputs` tries,
+a definition's memo would hand its first caller's answer to everyone else, and a recorded
+transition would replay to a state it never produced.
+
+### Why the placement is the way it is
+
+Every position a draw is refused in is one the runtime evaluates while it is sifting
+candidates or while it is memoizing a result. A guard runs once per candidate in a domain,
+with no outcome to be drawing for. A domain is enumerated to form those candidates and walked
+again to resolve an argument, so a domain that drew would refuse the move it had just
+offered. `terminal` is asked about a state, and whether a game is over is not a coin toss.
+
+### Weights, and what is a fault
+
+`DrawCandidate` is a value and a `decimal` weight, and `DrawCandidate.Even(value)` is the
+weight-of-one case above. Weights are relative to each other, not probabilities, so a rule
+set holding a deck as a count per rank hands you thirteen candidates with the counts on them.
+
+| | |
+| --- | --- |
+| a weight of zero | an ordinary state of affairs — none of that rank left — and the candidate simply does not appear |
+| a negative weight | a fault, reported against your `origin` |
+| nothing left at all | a fault, and deliberately not an absence of outcomes: a legal input has at least one thing that can happen to it, so an empty source means a guard forgot to say the source could be empty |
+| a value with no canonical text | a fault where it is drawn. A drawn value has to survive a trip out through an outcome document and back, which is the same trip an input argument makes |
+
+### It is evaluated once per time control reaches it
+
+The runtime finds the branches by running the effects with a script of choices and seeing
+where they stop, then extending the script and running them again from the start. So your
+`Evaluate` runs once per branch — and, within one run, once per time control reaches the
+node. A draw inside a projection over three seats is three draws rather than one drawn three
+times, which is what a rule set dealing a card to each seat in one effect is asking for.
+
+Expressions are pure and the draft is thrown away, so re-running costs nothing but time. It
+does mean your source is enumerated again each time, which is the one place where making
+`of` cheap is worth the thought.
+
+### Before you write one
+
+You probably want [`Rulealize.Plugin.Chance`](https://github.com/reny-develop/Rulealize.Plugin.Chance),
+which provides `chance.pick` over any sequence with an optional weight expression, and which
+a rule set names in `requires` like anything else. Write your own when the candidates come
+from something only your vocabulary knows — a distribution it holds, a source it reads — and
+not merely to spell `pick` differently.
+
+`AddDraw` and `IEvaluationContext.Draw` both carry a default implementation that refuses,
+because resolving a draw is a capability rather than a given. A host built on a runtime that
+cannot enumerate them turns your plugin away while it is loading, which is where you would
+want to hear about it.
 
 ---
 
