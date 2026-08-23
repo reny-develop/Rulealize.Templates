@@ -83,7 +83,7 @@ fetches only the rest.
 
 The default suits `Rulealize.Plugin.*`. A vendor-qualified identifier wants it given:
 `-n Acme.Deploy.Rules --namespace acme`, because the last part of that name is `rules` and
-[the conventions](https://github.com/reny-develop/Rulealize/blob/main/doc/plugin.md#the-conventions)
+[the conventions](https://github.com/reny-develop/Rulealize/blob/main/doc/plugin.md#the-identifier-and-the-namespace-are-still-claimed)
 ask for the vendor.
 
 ## The examples are meant to be deleted
