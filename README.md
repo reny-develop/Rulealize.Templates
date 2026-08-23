@@ -50,7 +50,7 @@ cd Rulealize.Plugin.Example
 dotnet tool restore
 dotnet build                                 # drops the assembly into plugin/
 dotnet rulealize plugins                     # Rulealize.Plugin.Example 1.0.0 (example) -- 3 operations
-dotnet rulealize restore ruleset/probe.json  # fetches the standard vocabularies it also names
+dotnet rulealize restore ruleset/probe.json  # fetches the vocabularies it also names
 dotnet rulealize play ruleset/probe.json     # walks it
 ```
 

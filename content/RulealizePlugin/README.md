@@ -24,7 +24,7 @@ A vocabulary for [Rulealize](https://github.com/reny-develop/Rulealize).
 dotnet tool restore                          # the rulealize command, pinned in .config
 dotnet build                                 # drops this vocabulary into plugin/
 dotnet rulealize plugins                     # what loaded, and what it registered
-dotnet rulealize restore ruleset/probe.json  # fetch the standard vocabularies it also names
+dotnet rulealize restore ruleset/probe.json  # fetch the vocabularies it also names
 dotnet rulealize play ruleset/probe.json     # walk it
 ```
 

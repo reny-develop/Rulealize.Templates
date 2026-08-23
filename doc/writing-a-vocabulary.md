@@ -660,8 +660,8 @@ reserve a character as it reads the folder, before any document is looked at.
 `RequireExpression("of")` in `Build`. **Rename an argument in `Build` and this is the line
 that changes.** Nothing else knows the property names.
 
-Two things follow from returning ordinary values rather than types of your own. The standard
-vocabulary works on them the day you ship —
+Two things follow from returning ordinary values rather than types of your own. The published
+vocabularies work on them the day you ship —
 
 ```jsonc
 { "op": "seq.count", "source": "$pile" }   // a pile is a Sequence, so seq.* already fits
@@ -1065,7 +1065,7 @@ no artifact backs. Publish `0.1.0` on the day you choose the name. That is cheap
 already expects it, and it is the only form of a claim this index is able to record.
 
 **Vendor-qualify it.** `acme`, not `deploy` — a namespace with an audience of one still
-occupies a name in a space everyone shares. The standard distribution's namespaces are taken,
+occupies a name in a space everyone shares. Every namespace the ledger already records is taken,
 and `str`, `time`, `set` and `fmt` are held against vocabularies that do not exist yet: those
 are refused rather than granted, because there is no supply of others.
 
@@ -1108,10 +1108,10 @@ there rather than reading a vocabulary's source for it.
 | --- | --- |
 | [Writing a plugin, in C#](https://github.com/reny-develop/Rulealize.Abstraction) | the reference for all of the above: everything a factory may ask for, the schema members, `IStateLocation`, `OpaqueValue`, sugar |
 | [The value model](https://github.com/reny-develop/Rulealize.Abstraction/blob/main/doc/value-model.md) | the kinds, equality, null propagation, and what each kind of node may do |
-| [The standard vocabulary](https://github.com/reny-develop/Rulealize/blob/main/doc/plugin.md) | what each provides, and the conventions for one you keep to yourself |
+| [Vocabulary](https://github.com/reny-develop/Rulealize/blob/main/doc/plugin.md) | where the published ones are indexed, and the conventions for one you keep to yourself |
 | [The command line](https://github.com/reny-develop/Rulealize.Cli) | every command above, and what it will not do |
 | [Rule sets worth reading](https://github.com/reny-develop/Rulealize/blob/main/doc/README.md) | reversi, chess, shogi, a shift roster and a deployment pipeline, each written out in full |
-| A specification per plugin | reached from the table above. [`Rulealize.Plugin.Grid`](https://github.com/reny-develop/Rulealize.Plugin.Grid) is the one that provides all three kinds of node |
+| A specification per plugin | released with the plugin, as `doc/specification.md` in its own repository. [`Rulealize.Plugin.Grid`](https://github.com/reny-develop/Rulealize.Plugin.Grid) is the one that provides all three kinds of node |
 
 Reading a whole vocabulary next to your own is worth an hour once you have something
 working, and Grid is the one to open: it provides all three kinds of node and values of its
