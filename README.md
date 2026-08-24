@@ -13,7 +13,7 @@ dotnet new rulealize-plugin -n Rulealize.Plugin.Example
 
 The scaffolding is what a template can write. The part it cannot is
 [**writing a vocabulary**](doc/writing-a-vocabulary.md) — what `Build` and `Evaluate` are
-for, how to refuse bad input, what a value is, what the other two kinds of node are, and
+for, how to refuse bad input, what a value is, what the fourth kind of operation is, and
 [what publishing changes](doc/writing-a-vocabulary.md#when-you-publish-it): the namespace
 stops being yours alone to decide, and is claimed in an index rather than in your assembly.
 
@@ -93,7 +93,7 @@ a state field holds, `example.push` writes a token to it, `example.top` reads th
 back. That has nothing to do with whatever you are building, and it is not meant to. Nothing in
 `-n` or `--namespace` could say what your first operation should do, so what is generated is
 a worked example rather than a guess — the shortest three in which an `Evaluate`, an `Apply`
-and a schema's four members are each visible whole.
+and a schema's five members are each visible whole.
 
 Copy the shape you need, write yours, delete all three. The same goes for
 `ruleset/probe.json`, which calls them.

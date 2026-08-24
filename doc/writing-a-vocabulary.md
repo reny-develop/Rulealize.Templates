@@ -19,9 +19,9 @@ is one of them. The names are `example.*` because the project was called
 
 | | Base class | Method | Registered with | Where it may appear |
 | --- | --- | --- | --- | --- |
-| Expression | `ExpressionNode` | `Evaluate(context)` | `AddExpression` | guards, definitions, effect arguments, domains, terminal |
+| Expression | `ExpressionNode` | `Evaluate(context)` | `AddExpression` | guards, definitions, effect arguments, domains, the actor, terminal |
 | Effect | `EffectNode` | `Apply(context, draft)` | `AddEffect` | an input's `effects` only |
-| Schema | `SchemaNode` | four members | `AddSchema` | `state.schema` only |
+| Schema | `SchemaNode` | five members | `AddSchema` | `state.schema` only |
 | Draw | `ExpressionNode` | `Evaluate(context)` | `AddDraw` | an input's `effects` only, at any depth |
 
 Most vocabularies are expressions and nothing else, which is why they come first. **The call
@@ -124,6 +124,7 @@ rule set may write.
 | `OptionalExpression("separator")` | the same, or `null` | absent is legal |
 | `RequireExpressionArray("of")` | `ImmutableArray<ExpressionNode>`, in order | order is part of your contract |
 | `RequireSchema("cell")` | a child **schema** node | how a schema takes the type of what it holds |
+| `RequireEffect("do")` | a child **effect** node | for an effect that wraps another one |
 | `RequireString("as")` | a **literal** string from the document | writing an expression there is a build error |
 | `OptionalString("notation")` / `RequireStringArray("values")` | the same, absent or as a list | |
 | `RequireInt32("width")` / `OptionalInt32("min", 0)` | a literal number | |
@@ -137,8 +138,9 @@ and asking for them as literals is what lets them be checked once.
 When your node's shape does not fit any of them — a map of named subexpressions, a set of
 case keys — `context.Node` is the JSON itself, `GetRequiredProperty` and `TryGetProperty`
 reach into it, and `BuildExpression(element, label)` turns a piece you found that way into a
-node with a label the diagnostics can use. That is the escape hatch, and needing it is
-ordinary; `branch.match` is written with it.
+node with a label the diagnostics can use — `BuildEffect` and `BuildSchema` do the same for
+the other two kinds. That is the escape hatch, and needing it is ordinary: `branch.match` is
+written with it, and `rec.of` builds its map of named field schemas the same way.
 
 ### Refusing bad input
 
@@ -577,11 +579,14 @@ plugins can share a binding without meeting.
 ## 7. Calling it from a rule set
 
 Writing the C# is the hard half; the JSON turns out to be smaller than it looks. A rule set
-has **five slots that take a node**, and each of them takes exactly one kind. That is the
+has **eight slots that take a node**, and each of them takes exactly one kind. That is the
 whole of what you need to know to edit `ruleset/probe.json`.
 
 ```jsonc
 {
+  "definitions": {
+    "<name>": { … }                       // EXPRESSION -> what the name stands for
+  },
   "state": {
     "schema": { "pile": { … } },          // SCHEMA nodes, one per field
     "initial": { "pile": [] }             // plain JSON, in the shape that schema reads
@@ -589,13 +594,14 @@ whole of what you need to know to edit `ruleset/probe.json`.
   "inputs": {
     "push": {
       "params": { "token": { "domain": { … } } },   // EXPRESSION -> a sequence of candidates
+      "actor":   { … },                             // EXPRESSION -> whose move this is
       "when":    { … },                             // EXPRESSION -> a boolean
       "effects": [ { … } ]                          // EFFECT nodes, in order
     }
   },
   "terminal": {
     "when":   { … },                      // EXPRESSION -> a boolean
-    "result": "full"                      // a label, not a node
+    "result": { … }                       // EXPRESSION -> what the outcome was
   }
 }
 ```
@@ -603,10 +609,22 @@ whole of what you need to know to edit `ruleset/probe.json`.
 | Slot | Takes | Asks |
 | --- | --- | --- |
 | `state.schema.<field>` | a **schema** | what does this field hold |
+| `definitions.<name>` | an **expression** | what does this name stand for |
 | `inputs.<name>.params.<p>.domain` | an **expression** giving a sequence | what values may this parameter take |
+| `inputs.<name>.actor` | an **expression** | whose move is this |
 | `inputs.<name>.when` | an **expression** giving a boolean | is this input legal here |
 | `inputs.<name>.effects[]` | **effects** | what does it change |
 | `terminal.when` | an **expression** giving a boolean | is this position final |
+| `terminal.result` | an **expression** | what was the outcome |
+
+`probe.json` writes six of them, and the two it leaves out are the two a rule set can do
+without. `actor` says whose move a candidate is, for a rule set where that is a question.
+`definitions` is where a subexpression written twice goes — a definition taking `params`
+puts its node under `body`, and one taking none **is** the node.
+
+**`terminal.result` is a node like the rest.** `probe.json` writes `"full"` there, which
+reads like a label and is not one: a bare scalar is an expression, which is the next thing
+below. Reversi counts the stones in that slot and answers `black`, `white` or `draw`.
 
 Put an operation in the wrong slot and it is refused by name, before anything runs:
 
@@ -634,10 +652,15 @@ next to the vocabulary that reserved it, and three are in use:
 | --- | --- | --- |
 | `$field` | a state field | `Rulealize.Plugin.State` |
 | `@name` | a parameter, or a name an operation bound | `Rulealize.Plugin.Binding` |
-| `#name` | one of the document's own `defs` | `Rulealize.Plugin.Definition` |
+| `#name` | one of the document's own `definitions` | `Rulealize.Plugin.Definition` |
 
 Each is shorthand for an operation you could have written out, and each needs its vocabulary
 in `requires` — which is why `probe.json` names `Binding` although no `bind.*` appears in it.
+
+**Reserving one is two lines.** The character is the fourth argument to `PluginManifest`, and
+an `ISugarExpander` handed to `registry.AddSugar` is what turns the literal into a node: it
+gets the text with the character still on the front, and `state` takes the rest as a field
+name. The template leaves both out, which is what its `Reserved prefix: none` records.
 
 **A character is not owned**, so yours may reserve one already in use. What decides a
 shorthand is then the document, not the loaded set: one that names a single claimant in
@@ -822,6 +845,14 @@ Expressions are pure and the draft is thrown away, so re-running costs nothing b
 does mean your source is enumerated again each time, which is the one place where making
 `of` cheap is worth the thought.
 
+### Running one
+
+`play` asks which of the outcomes happened and carries on. `apply` cannot guess: it prints
+what could have happened, most likely first, and stops with a non-zero status. Write the one
+that did as a `rulealize/outcome/v1` document and pass it as `--outcome <file>`. How many
+that list may hold is `--outcomes <n>`, and it says what fraction of the probability they
+cover when the limit cut it short.
+
 ### Before you write one
 
 You probably want [`Rulealize.Plugin.Chance`](https://github.com/reny-develop/Rulealize.Plugin.Chance),
@@ -858,9 +889,9 @@ plugin
   1 assembly, 1 vocabulary
 
   Rulealize.Plugin.Example 1.0.0  (example)
-      example.pile                 schema
-      example.push                 effect
-      example.top                  expression
+      example.pile                  schema
+      example.push                  effect
+      example.top                   expression
 
 3 operations in total.
 ```
@@ -1035,22 +1066,6 @@ push(token: blue)
 **Three candidates, two legal**: `push(token: red)` is gone because `example.top` now returns
 `red` and the guard refuses a repeat. That one line is your operation being exercised.
 
-`--write` amends the state file in place instead, which is one file name for a sequence of
-moves rather than one per move:
-
-```
-$ dotnet rulealize apply ruleset/probe.json "push(token: green)" --state s1.json --write
-push(token: green) applied to 's1.json'
-'s1.json' updated
-
-$ dotnet rulealize apply ruleset/probe.json "push(token: blue)" --state s1.json --write
-push(token: blue) applied to 's1.json' -- terminal (full)
-'s1.json' updated
-```
-
-The `-- terminal (full)` is `terminal.when` and `terminal.result` from the document. A
-sequence of those lines is a regression test you can paste into a shell script.
-
 **A refusal names what was on offer instead**, which is usually enough to see why:
 
 ```
@@ -1100,13 +1115,33 @@ quickest way to write one is to copy the nearest legal input and change the argu
 refused. `ruleSet` is optional and worth keeping: when it is there it is checked, so an input
 document left over from an earlier version of the document says so instead of applying.
 
+### Walking a sequence out
+
+`--write` amends the state file in place instead, which is one file name for a sequence of
+moves rather than one per move. `s1.json` is still one move in, so two more finish it:
+
+```
+$ dotnet rulealize apply ruleset/probe.json "push(token: green)" --state s1.json --write
+push(token: green) applied to 's1.json'
+'s1.json' updated
+
+$ dotnet rulealize apply ruleset/probe.json "push(token: blue)" --state s1.json --write
+push(token: blue) applied to 's1.json' -- terminal (full)
+'s1.json' updated
+```
+
+The `-- terminal (full)` is `terminal.when` and `terminal.result` from the document. A
+sequence of those lines is a regression test you can paste into a shell script.
+
 | | |
 | --- | --- |
 | `--plugins <folder>` | where the vocabularies are. Default `plugin` |
 | `--state <file>` | the position to start from. Default the rule set's own `state.initial` |
 | `--input <file>` | `apply` an input document rather than one `moves` named. The only way to reach an input the rule set refuses |
+| `--outcome <file>` | which of a draw's outcomes happened, for an input that resolves something nobody chose |
 | `--write` | amend `--state` in place instead of writing to standard output |
 | `--limit <n>` | candidates `GetValidInputs` may try. Default 10000 |
+| `--outcomes <n>` | outcomes `GetOutcomes` may return. Default 64 |
 | `--json` | `moves`, as the runtime writes them |
 
 ## When you publish it

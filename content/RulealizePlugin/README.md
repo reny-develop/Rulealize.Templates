@@ -35,9 +35,9 @@ plugin
   1 assembly, 1 vocabulary
 
   Rulealize.Plugin.Example 1.0.0  (yourns)
-      yourns.pile                 schema
-      yourns.push                 effect
-      yourns.top                  expression
+      yourns.pile                  schema
+      yourns.push                  effect
+      yourns.top                   expression
 
 3 operations in total.
 ```
@@ -54,7 +54,6 @@ chasing something, put it in a file:
 dotnet rulealize moves ruleset/probe.json                          # what is legal here
 dotnet rulealize apply ruleset/probe.json "push(token: red)" > s1.json
 dotnet rulealize moves ruleset/probe.json --state s1.json          # what is legal now
-dotnet rulealize apply ruleset/probe.json "push(token: blue)" --state s1.json --write
 ```
 
 ```
@@ -73,6 +72,16 @@ Naming an input goes through that list, so it can only apply something already o
 check that a guard **refuses** what it should -- which is half of what a guard is for -- write
 the input document and pass it directly:
 
+```jsonc
+// repeat.json -- the same colour twice, which the guard must refuse
+{
+  "$schema": "rulealize/input/v1",
+  "ruleSet": "probe@1.0.0",
+  "input": "push",
+  "args": { "token": "red" }
+}
+```
+
 ```sh
 dotnet rulealize apply ruleset/probe.json --input repeat.json --state s1.json
 ```
@@ -87,6 +96,21 @@ These are:
 That refusal is the result you wanted, and the exit code is non-zero, so a script can assert
 on it. `dotnet rulealize moves ruleset/probe.json --json` prints legal inputs in the shape
 such a document takes.
+
+`--write` amends `--state` in place rather than writing to standard output, which is one file
+name for a sequence of moves. `s1.json` is still one move in, so two more finish it:
+
+```sh
+dotnet rulealize apply ruleset/probe.json "push(token: green)" --state s1.json --write
+dotnet rulealize apply ruleset/probe.json "push(token: blue)" --state s1.json --write
+```
+
+```
+push(token: green) applied to 's1.json'
+'s1.json' updated
+push(token: blue) applied to 's1.json' -- terminal (full)
+'s1.json' updated
+```
 
 ## Adding an operation
 

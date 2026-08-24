@@ -16,11 +16,22 @@ dotnet new uninstall ./content/RulealizePlugin
 
 Installing again over the same folder wants `--force`, since the version has not moved.
 
-The generated project is the thing to check, not the template source: `dotnet build` there
-should be silent, and `rulealize plugins`, `check` and `play` should all run against
-`ruleset/probe.json` before a change is called done. Generate under a second name as well —
-`-n Acme.Deploy.Rules --namespace acme` — because that is the path where every token
-substitution actually moves.
+The generated project is the thing to check, not the template source. Two restores come
+before anything of it runs — the pinned tool, and the four vocabularies `probe.json` names
+besides its own:
+
+```sh
+cd Rulealize.Plugin.Trial
+dotnet tool restore
+dotnet build                                 # silent, or the change is not done
+dotnet rulealize plugins                     # what registered, and under which namespace
+dotnet rulealize restore ruleset/probe.json  # check and play need this; plugins does not
+dotnet rulealize check ruleset/probe.json
+dotnet rulealize play ruleset/probe.json
+```
+
+Generate under a second name as well — `-n Acme.Deploy.Rules --namespace acme` — because
+that is the path where every token substitution actually moves.
 
 **What a folder install cannot tell you is whether the package is intact.** It reads the
 folder directly, so it never runs the csproj's `Content` globs or `NoDefaultExcludes`, and

@@ -17,11 +17,21 @@ namespace Rulealize.Plugin.Example
     {
         /// <inheritdoc />
         /// <remarks>
+        /// <para>
         /// Three things. The identifier is what a rule set's <c>requires</c> names. The
         /// version is what that entry's <c>^1.0</c> is checked against, and is not the
         /// package version next door in the csproj — raise both. The namespace is what every
         /// operation below is prefixed with, and this vocabulary cannot register into
         /// anybody else's.
+        /// </para>
+        /// <para>
+        /// A fourth is optional and left out here: the one character this vocabulary claims
+        /// for shorthand, the way <c>state</c> claims the <c>$</c> in <c>"$pile"</c>.
+        /// Claiming one is that argument plus an <see cref="ISugarExpander"/> handed to
+        /// <c>registry.AddSugar</c> below, and until then the <c>Reserved prefix</c> row in
+        /// the readme and the specification reads <c>none</c>. A character is not owned, so
+        /// one another vocabulary already reserves is allowed.
+        /// </para>
         /// </remarks>
         public PluginManifest Manifest { get; } =
             new("Rulealize.Plugin.Example", new Version(1, 0, 0), "yourns");
