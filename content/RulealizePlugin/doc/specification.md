@@ -34,7 +34,7 @@ A state field holding an ordered pile of tokens, written as an array of strings.
 ### Form
 
 ```jsonc
-{ "op": "yourns.pile", "max": <integer literal, optional> }
+{ "op": "yourns.pile", "max": <integer> }   // optional
 ```
 
 `max` bounds the number of tokens. A negative `max` is a build error.
