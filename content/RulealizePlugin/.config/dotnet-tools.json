@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "rulealize.cli": {
-      "version": "0.10.0",
+      "version": "0.11.0",
       "commands": [ "rulealize" ],
       "rollForward": false
     }
