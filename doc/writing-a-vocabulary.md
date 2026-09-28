@@ -19,7 +19,7 @@ is one of them. The names are `example.*` because the project was called
 
 | | Base class | Method | Registered with | Where it may appear |
 | --- | --- | --- | --- | --- |
-| Expression | `ExpressionNode` | `Evaluate(context)` | `AddExpression` | guards, definitions, effect arguments, domains, the actor, terminal |
+| Expression | `ExpressionNode` | `Evaluate(context)` | `AddExpression` | guards, definitions, effect arguments, domains, the actor, projections, terminal |
 | Effect | `EffectNode` | `Apply(context, draft)` | `AddEffect` | an input's `effects` only |
 | Schema | `SchemaNode` | four members, two optional | `AddSchema` | `state.schema`, a parameter's `open` |
 | Draw | `ExpressionNode` | `Evaluate(context)` | `AddDraw` | an input's `effects` only, at any depth |
@@ -632,13 +632,17 @@ whole of what you need to know to edit `ruleset/probe.json`.
 | `inputs.<name>.actor` | an **expression** | whose move is this |
 | `inputs.<name>.when` | an **expression** giving a boolean | is this input legal here |
 | `inputs.<name>.effects[]` | **effects** | what does it change |
+| `projections.<name>` | an **expression** | what does the rule set say about a position |
 | `terminal.when` | an **expression** giving a boolean | is this position final |
 | `terminal.result` | an **expression** | what was the outcome |
 
-`probe.json` writes six of them, and the two it leaves out are the two a rule set can do
+`probe.json` writes six of them, and the four it leaves out are four a rule set can do
 without. `actor` says whose move a candidate is, for a rule set where that is a question.
 `definitions` is where a subexpression written twice goes — a definition taking `params`
-puts its node under `body`, and one taking none **is** the node.
+puts its node under `body`, and one taking none **is** the node. `params[].open` stands where
+a `domain` would if the value comes from outside instead of being enumerated. And
+`projections` is what the rule set will say about a position when a caller asks, which is
+the one slot here whose answer leaves the document rather than steering it.
 
 **`terminal.result` is a node like the rest.** `probe.json` writes `"full"` there, which
 reads like a label and is not one: a bare scalar is an expression, which is the next thing
@@ -798,8 +802,8 @@ registry.AddDraw("deal", DealNode.Build);
 That call is the whole of the difference. `DealNode` derives from `ExpressionNode` and
 overrides `Evaluate` exactly as `TopNode` does; registering it with `AddDraw` rather than
 `AddExpression` is what tells the runtime to refuse it in a guard, in a parameter's domain,
-in an `actor`, in `terminal` and in a definition's body — checked while the rule set is
-compiled, with a pointer to the node.
+in an `actor`, in a projection, in `terminal` and in a definition's body — checked while the
+rule set is compiled, with a pointer to the node.
 
 ```csharp
 internal sealed class DealNode(ExpressionNode of) : ExpressionNode
