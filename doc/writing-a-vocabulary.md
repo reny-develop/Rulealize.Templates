@@ -21,7 +21,7 @@ is one of them. The names are `example.*` because the project was called
 | --- | --- | --- | --- | --- |
 | Expression | `ExpressionNode` | `Evaluate(context)` | `AddExpression` | guards, definitions, effect arguments, domains, the actor, terminal |
 | Effect | `EffectNode` | `Apply(context, draft)` | `AddEffect` | an input's `effects` only |
-| Schema | `SchemaNode` | five members | `AddSchema` | `state.schema` only |
+| Schema | `SchemaNode` | four members, two optional | `AddSchema` | `state.schema`, a parameter's `open` |
 | Draw | `ExpressionNode` | `Evaluate(context)` | `AddDraw` | an input's `effects` only, at any depth |
 
 Most vocabularies are expressions and nothing else, which is why they come first. **The call
@@ -410,7 +410,7 @@ read-modify-write does not have to care what ran before it.
 ## 6. Schemas
 
 `PileSchemaNode.cs` is the third. A schema node says what one state field holds, appears in
-`state.schema` and nowhere else, and **is never evaluated** — there is no `Evaluate` and no
+`state.schema` and in a parameter's `open`, and **is never evaluated** — there is no `Evaluate` and no
 `IEvaluationContext` anywhere in it, because a schema describes values rather than producing
 them.
 
@@ -420,7 +420,7 @@ while `grid.board` decides that a board is written as a sparse object keyed by c
 Switching to a dense array is a change to one schema node and nothing else — and a compact
 spelling of your own, a duration as `"PT5M"` or a position as `"d3"`, has nowhere else to go.
 
-Four members, and one optional fifth.
+Four members, and two optional.
 
 | | |
 | --- | --- |
@@ -429,6 +429,7 @@ Four members, and one optional fifth.
 | `ReadJson(element, sink)` | a state document arriving |
 | `WriteJson(writer, value)` | a state document leaving |
 | `Normalize(value)` | settle what an effect wrote, before it is stored |
+| `Describe()` | the bounds, as a record a host can read |
 
 ```csharp
 public override bool IsNullable => false;
@@ -507,6 +508,22 @@ public override RuleValue Normalize(RuleValue value)
 It is not a place to reject anything. A value that does not satisfy the schema is
 `Validate`'s business, and returning something the schema disallows would only move the fault
 somewhere harder to read.
+
+**`Describe` is for the other position**, and a schema nobody will be asked to type a value
+for does not need it. A parameter may be `open` instead of having a domain, which is how an
+input takes a value the rule set never produced, and what stands there is a schema node —
+admitting a value is what one already does. Write it when yours is a kind somebody edits.
+
+`Describe` hands back the bounds as a record so a host can build an editor from them rather
+than restating them. Nothing interprets it on the way through; a host reads it against your
+`op`. Bounds only — what a field is called and how it is drawn are the host's.
+
+```csharp
+public override RecordValue Describe() => RuleValue.Record(new Dictionary<string, RuleValue>
+{
+    ["maxTokens"] = maximum is int limit ? RuleValue.Number(limit) : RuleValue.Null,
+});
+```
 
 ### A schema with a schema inside
 
@@ -611,6 +628,7 @@ whole of what you need to know to edit `ruleset/probe.json`.
 | `state.schema.<field>` | a **schema** | what does this field hold |
 | `definitions.<name>` | an **expression** | what does this name stand for |
 | `inputs.<name>.params.<p>.domain` | an **expression** giving a sequence | what values may this parameter take |
+| `inputs.<name>.params.<p>.open` | a **schema** | what values would be admissible, where they come from outside |
 | `inputs.<name>.actor` | an **expression** | whose move is this |
 | `inputs.<name>.when` | an **expression** giving a boolean | is this input legal here |
 | `inputs.<name>.effects[]` | **effects** | what does it change |

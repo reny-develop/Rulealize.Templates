@@ -93,7 +93,7 @@ a state field holds, `example.push` writes a token to it, `example.top` reads th
 back. That has nothing to do with whatever you are building, and it is not meant to. Nothing in
 `-n` or `--namespace` could say what your first operation should do, so what is generated is
 a worked example rather than a guess — the shortest three in which an `Evaluate`, an `Apply`
-and a schema's five members are each visible whole.
+and five of a schema's members are each visible whole.
 
 Copy the shape you need, write yours, delete all three. The same goes for
 `ruleset/probe.json`, which calls them.
