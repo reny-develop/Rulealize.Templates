@@ -926,7 +926,9 @@ lists all five, and the reserved-prefix characters `$` and `@` appear beside the
 reserved them.
 
 When the class itself did not load, the count says `0 vocabularies` and the command asks the
-runtime why, since a folder sweep passes over what it cannot use in silence:
+runtime why. A sweep names what it took for a plugin and could not use — an assembly built
+against a version of the abstraction the host does not carry — and passes over everything else
+in silence, which is the case here:
 
 ```
 plugin
