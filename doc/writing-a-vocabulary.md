@@ -972,11 +972,9 @@ the document is decided here — unknown operations, missing keys, expressions w
 belong, unbound locals, nodes used where their kind does not fit:
 
 ```
-  /inputs/push/when/left: 'example.tpo' is not an operation any loaded plugin provides.
-  Check the rule set's 'requires'.
+  /inputs/push/when/left: 'example.tpo' is not an operation any loaded plugin provides. Check the rule set's 'requires'.
 
-  /inputs/push/effects[0]: 'example.top' is an expression and cannot appear where an
-  effect is expected.
+  /inputs/push/effects[0]: 'example.top' is an expression and cannot appear where an effect is expected.
 ```
 
 So does a build-time refusal of your own, which is why section 2 prefers them:
@@ -1154,6 +1152,7 @@ sequence of those lines is a regression test you can paste into a shell script.
 | | |
 | --- | --- |
 | `--plugins <folder>` | where the vocabularies are. Default `plugin` |
+| `--rulesets <folder>` | where fetched components go and are read from. Default `component` |
 | `--state <file>` | the position to start from. Default the rule set's own `state.initial` |
 | `--input <file>` | `apply` an input document rather than one `moves` named. The only way to reach an input the rule set refuses |
 | `--outcome <file>` | which of a draw's outcomes happened, for an input that resolves something nobody chose |
