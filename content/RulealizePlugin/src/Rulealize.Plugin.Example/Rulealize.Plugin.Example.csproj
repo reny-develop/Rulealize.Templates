@@ -35,7 +35,7 @@
 
   <ItemGroup>
     <!-- The only thing a vocabulary depends on. Not the runtime, and not another plugin. -->
-    <PackageReference Include="Rulealize.Abstraction" Version="0.4.0" />
+    <PackageReference Include="Rulealize.Abstraction" Version="0.5.0" />
   </ItemGroup>
 
   <!--
