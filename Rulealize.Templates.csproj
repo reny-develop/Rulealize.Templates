@@ -3,10 +3,10 @@
   <PropertyGroup>
     <PackageType>Template</PackageType>
     <PackageId>Rulealize.Templates</PackageId>
-    <Version>0.2.0</Version>
+    <Version>0.3.0</Version>
     <Authors>Reny</Authors>
     <Title>Rulealize templates</Title>
-    <Description>dotnet new templates for Rulealize. `rulealize-plugin` creates a vocabulary: one plugin class, one worked example of each kind of node, and a rule set that calls them. `rulealize-avalonia-app` creates an Avalonia application made of a rule set and XAML, before either is written.</Description>
+    <Description>dotnet new templates for Rulealize. `rulealize-plugin` creates a vocabulary: one plugin class, one worked example of each kind of node, and a rule set that calls them. `rulealize-avalonia-app` creates an Avalonia application made of a rule set and XAML, before either is written, with what an agent writing its rules is told and the commands that say when they are finished.</Description>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/reny-develop/Rulealize.Templates</RepositoryUrl>

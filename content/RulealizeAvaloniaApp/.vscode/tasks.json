@@ -1,0 +1,25 @@
+{
+  // Two of the checks AGENTS.md names, as tasks, so that what an agent is told to run is what the
+  // person sees: whether the design builds against the rules, and whether the screen does what the
+  // test design says. The other three are shown as they change, by the Rulealize extension.
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build",
+      "type": "process",
+      "command": "dotnet",
+      "args": [ "build" ],
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "replay the test design",
+      "type": "process",
+      "command": "dotnet",
+      "args": [ "rulealize-studio", "replay" ],
+      "dependsOn": "build",
+      "group": "test",
+      "problemMatcher": "$msCompile"
+    }
+  ]
+}
