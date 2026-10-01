@@ -118,6 +118,14 @@ Then, after the last change, in this order:
    values somebody chose to try; `ruledger diff` says whether it is still what the rules do.
    `dotnet ruledger derive <rule set>.json --plugins bin/Debug/net10.0`
    `dotnet ruledger diff <rule set>.test-design.json <rule set>.json --plugins bin/Debug/net10.0`
+
+   Where a value is typed rather than picked from what the rules list — a name, say — the walk
+   follows only the values somebody chose to try, and until one is chosen it stops there: a
+   design of one state passes every check here and shows the person nothing. So choose them,
+   values the rules take: each is an entry in the design's `edits`, written the way
+   [an edit](https://github.com/reny-develop/Ruledger/blob/main/doc/test-design.md#an-edit)
+   says, and deriving again carries it. Tell the person which you chose; they are theirs to
+   change.
 5. **The screen does what the test design says,** on the application as step 1 built it: every
    state it names, every move pressed on the control that stands for it.
    `dotnet rulealize-studio replay`
