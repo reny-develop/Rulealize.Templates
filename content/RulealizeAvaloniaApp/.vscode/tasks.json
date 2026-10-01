@@ -1,7 +1,7 @@
 {
-  // Two of the checks AGENTS.md names, as tasks, so that what an agent is told to run is what the
-  // person sees: whether the design builds against the rules, and whether the screen does what the
-  // test design says. The other three are shown as they change, by the Rulealize extension.
+  // Two of the tools AGENTS.md names, as tasks, so that what they report is in the Problems panel
+  // for whoever runs them: whether the design builds against the rules, and whether the screen does
+  // what the test design says. What the others report the Rulealize extension shows as it changes.
   "version": "2.0.0",
   "tasks": [
     {

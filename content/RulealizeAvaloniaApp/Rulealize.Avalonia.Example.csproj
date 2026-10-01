@@ -24,9 +24,9 @@
     <PackageReference Include="Avalonia" Version="11.3.11" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.11" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
-    <PackageReference Include="RulealizeStudio.Binding" Version="0.1.0" />
-    <PackageReference Include="RulealizeStudio.Hosting" Version="0.1.0" />
-    <PackageReference Include="RulealizeStudio.Generator" Version="0.1.0" PrivateAssets="all" />
+    <PackageReference Include="RulealizeStudio.Binding" Version="0.2.0" />
+    <PackageReference Include="RulealizeStudio.Hosting" Version="0.2.0" />
+    <PackageReference Include="RulealizeStudio.Generator" Version="0.2.0" PrivateAssets="all" />
   </ItemGroup>
 
   <!--
