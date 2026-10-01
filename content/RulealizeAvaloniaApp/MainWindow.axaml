@@ -1,0 +1,10 @@
+<!--
+  The application's screen, with nothing on it yet. Once there is a rule set, the window binds
+  the model generated from it: x:DataType set to that model, and bindings to the names the rule
+  set gives.
+-->
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Rulealize.Avalonia.Example"
+        Width="480" Height="360">
+</Window>

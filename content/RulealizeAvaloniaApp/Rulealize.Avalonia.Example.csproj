@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    An Avalonia application made of a rule set and XAML. The rule set is any JSON file in this
+    folder that says it is one; the generator reads it at build time and writes the model
+    MainWindow.axaml binds to, named after the rule set's id. Until there is one, the window is
+    empty.
+  -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <RootNamespace>Rulealize.Avalonia.Example</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AdditionalFiles Include="*.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.11" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
+    <PackageReference Include="RulealizeStudio.Binding" Version="0.1.0" />
+    <PackageReference Include="RulealizeStudio.Hosting" Version="0.1.0" />
+    <PackageReference Include="RulealizeStudio.Generator" Version="0.1.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!--
+    What the rule set requires: a package per vocabulary it names, so that the rules ship with
+    the binary and the model finds them beside it. None until there is a rule set.
+  -->
+  <ItemGroup>
+  </ItemGroup>
+
+</Project>

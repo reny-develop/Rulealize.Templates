@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Reny",
+  "classifications": [ "Rulealize", "Avalonia", "Desktop" ],
+  "identity": "Rulealize.Avalonia.App.Template",
+  "name": "Rulealize application for Avalonia",
+  "description": "An Avalonia application made of a rule set and XAML, before either is written: an empty window, an empty specification, and an entry point that is one call.",
+  "shortName": "rulealize-avalonia-app",
+  "defaultName": "RulealizeApp",
+  "sourceName": "Rulealize.Avalonia.Example",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "feed": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "",
+      "replaces": "FEED_FOLDER",
+      "description": "A folder of packages to restore from besides nuget.org, written into a nuget.config. For RulealizeStudio's packages while they are not on nuget.org; without it, no nuget.config is written."
+    },
+    "hasFeed": {
+      "type": "computed",
+      "value": "(feed != \"\")"
+    }
+  },
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [ "**/bin/**", "**/obj/**" ]
+        },
+        {
+          "condition": "(!hasFeed)",
+          "exclude": [ "nuget.config" ]
+        }
+      ]
+    }
+  ]
+}

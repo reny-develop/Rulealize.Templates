@@ -1,6 +1,7 @@
 # Working on the template
 
-For changing what `rulealize-plugin` writes. Nothing here is needed to use it — that is
+For changing what `rulealize-plugin` writes, and [below](#rulealize-avalonia-app), what
+`rulealize-avalonia-app` does. Nothing here is needed to use it — that is
 `dotnet new install Rulealize.Templates`, and the [readme](../README.md) covers it.
 
 ## Trying a change
@@ -55,6 +56,24 @@ The third is the one to keep in mind while writing prose for the template: **`Vo
 replaced wherever it appears**, so a sentence opening with "Vocabulary" would be mangled and
 a lowercase "vocabulary" is safe. Both the generated readme and the specification say
 "vocabulary" many times, deliberately, and never at the start of a sentence.
+
+## rulealize-avalonia-app
+
+Tried the same way, from `./content/RulealizeAvaloniaApp`. The generated folder restores
+RulealizeStudio's libraries, which are not on nuget.org yet, so it is generated with
+`--feed` pointing at a folder holding them — `feed/` in a RulealizeStudio working copy, after
+packing its `Binding`, `Hosting` and `Generator`:
+
+```sh
+dotnet new rulealize-avalonia-app -n Trial --feed <RulealizeStudio>/feed
+cd Trial
+dotnet build                                 # silent, and the window opens empty
+```
+
+`sourceName` is `Rulealize.Avalonia.Example`, which is the project, the namespace, the window's
+title and the specification's heading. `--feed` replaces `FEED_FOLDER` in `nuget.config` and is
+the only thing that writes it. The versions of RulealizeStudio's packages in the csproj are the
+ones RulealizeStudio packs.
 
 ## Releasing
 

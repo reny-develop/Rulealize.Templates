@@ -10,6 +10,7 @@ dotnet new rulealize-plugin -n Rulealize.Plugin.Example
 | Template | |
 | --- | --- |
 | `rulealize-plugin` | a vocabulary: one plugin class, one worked example of each kind of node, and a rule set that calls them |
+| `rulealize-avalonia-app` | an Avalonia application made of a rule set and XAML, before either is written — [below](#an-avalonia-application) |
 
 The scaffolding is what a template can write. The part it cannot is
 [**writing a vocabulary**](doc/writing-a-vocabulary.md) — what `Build` and `Evaluate` are
@@ -97,6 +98,33 @@ and five of a schema's members are each visible whole.
 
 Copy the shape you need, write yours, delete all three. The same goes for
 `ruleset/probe.json`, which calls them.
+
+## An Avalonia application
+
+```sh
+dotnet new rulealize-avalonia-app -n Booking --feed <folder>
+```
+
+```
+Booking/
+├─ Booking.csproj      the vocabularies the rule set requires, as packages; none yet
+├─ Program.cs          one call, naming neither the rule set nor its model
+├─ MainWindow.axaml    a window with nothing on it
+├─ specification.md    what the application should do, with nothing in it yet
+└─ .gitignore
+```
+
+It builds as it is and opens an empty window. What is added to it afterwards is a rule set —
+any JSON file in the folder that says it is one — the screen in `MainWindow.axaml` bound to the
+model generated from it, the parts of the specification, and the blueprint and test design beside
+them; `Program.cs` is not edited. That is
+[RulealizeStudio](https://github.com/reny-develop/RulealizeStudio.Avalonia)'s arrangement, and
+the libraries it references are RulealizeStudio's.
+
+**`--feed` is there while those libraries are not on nuget.org.** Given a folder of packages, the
+template writes a `nuget.config` that restores from it as well; without it, no `nuget.config` is
+written. The extension that makes an application folder passes its own. Once the libraries are
+published, the parameter and the file go.
 
 ## License
 
