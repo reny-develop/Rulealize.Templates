@@ -110,7 +110,7 @@ Booking/
 ├─ Booking.csproj      the vocabularies the rule set requires, as packages; none yet
 ├─ Program.cs          one call, naming neither the rule set nor its model
 ├─ MainWindow.axaml    a window with nothing on it
-├─ specification.md    what the application should do, with nothing in it yet
+├─ specification.json  what the application should do, as a UML state machine; nothing in it yet
 ├─ AGENTS.md           what is in the folder and what each tool does; CLAUDE.md only reads it
 ├─ .config/dotnet-tools.json   rulealize-studio and ruledger, pinned
 ├─ .vscode/tasks.json  the build and the replay, as tasks
@@ -119,8 +119,9 @@ Booking/
 
 It builds as it is and opens an empty window. What is added to it afterwards is a rule set —
 any JSON file in the folder that says it is one — the screen in `MainWindow.axaml` bound to the
-model generated from it, the parts of the specification, and the blueprint and test design beside
-them, with a label document per language for what its refusals say; `Program.cs` is not edited.
+model generated from it, the specification's states, transitions and notes, each bound to the
+rules that carry it out, and the test design beside them, with a label document per language for
+what its refusals say; `Program.cs` is not edited.
 `AGENTS.md` says what is in the folder, how each file is read, and what each tool does and reports
 — `dotnet build`, `rulealize-studio check`, `agree`, `replay` and `show`, and `ruledger derive` and
 `diff` — each the program the editor runs to show the person the same thing. It says nothing about

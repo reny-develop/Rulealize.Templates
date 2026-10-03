@@ -71,8 +71,8 @@ dotnet build                                 # silent, and the window opens empt
 dotnet tool restore                          # rulealize-studio from the same folder, ruledger from nuget.org
 ```
 
-`sourceName` is `Rulealize.Avalonia.Example`, which is the project, the namespace, the window's
-title and the specification's heading. `--feed` replaces `FEED_FOLDER` in `nuget.config` and is
+`sourceName` is `Rulealize.Avalonia.Example`, which is the project, the namespace and the window's
+title. `--feed` replaces `FEED_FOLDER` in `nuget.config` and is
 the only thing that writes it. The versions of RulealizeStudio's packages in the csproj, and of
 `rulealize-studio` in `.config/dotnet-tools.json`, are the ones RulealizeStudio packs, and `--feed`
 needs its server packed beside the libraries for `dotnet tool restore` to find it. `AGENTS.md`

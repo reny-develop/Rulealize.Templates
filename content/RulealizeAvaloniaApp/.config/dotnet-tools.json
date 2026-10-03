@@ -3,7 +3,7 @@
   "isRoot": true,
   "tools": {
     "rulealizestudio.server": {
-      "version": "0.2.0",
+      "version": "0.3.0",
       "commands": [ "rulealize-studio" ],
       "rollForward": false
     },

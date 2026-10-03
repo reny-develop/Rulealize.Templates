@@ -11,42 +11,52 @@ and is not repeated here.
 | | |
 | --- | --- |
 | `MainWindow.axaml` | the design: the window, bound by name to what the rules give |
-| `specification.md`, or any other specification | what the application should do, a part at a time |
+| `specification.json` | what the application should do, as a UML state machine, each element bound to the rules that carry it out |
 | `<rule set>.json` | the rules |
-| `<rule set>.blueprint.json` | each part of each specification, bound to the rules that carry it out |
 | `<rule set>.test-design.json` | everything the rules allow, as `ruledger derive` writes it down |
 | `<rule set>.labels.<language>.json` | what the application says, in one language, where the rules refuse with a code |
 | the `.csproj` | the vocabularies the rule set requires, as packages |
 
-The design and the specifications together are the blueprint. There is no C# beyond `Program.cs`,
+The design and the specification together are the blueprint. There is no C# beyond `Program.cs`,
 which is the same in every application; the model the window binds to is generated from the rule
 set when the application is built. The rule set is any JSON file here whose `$schema` says it is
-one, and the files beside it are named after it: `booking.json`, `booking.blueprint.json`,
-`booking.test-design.json`, `booking.labels.en.json`.
+one, and the files beside it are named after it: `booking.json`, `booking.test-design.json`,
+`booking.labels.en.json`. The specification is written before there are rules, and is named after
+none.
 
-## The blueprint
+## The specification
 
-In Markdown a part of a specification is a paragraph, list item, heading or table row that ends
-with a comment naming it:
+`specification.json` is a UML state machine: the states the application is in, the transitions
+between them — each what the person does, and what it waits for — and notes on either, or on the
+whole, for what is said about them that is not a move. Each of the three is an element, under an
+id of its own, and holds what it says and the rules that carry it out, each by a name the rule set
+gives it — never a place in the text:
 
-```markdown
-- A party is one to six people. <!-- part: party-size -->
-```
-
-The blueprint binds each part, by its id, to the rules that carry it out, each by a name the rule
-set gives it — never a place in the text:
-
-```jsonc
+```json
 {
-  "$schema": "rulealize-studio/blueprint/v1",
-  "specifications": {
-    "specification.md": {
-      "party-size": ["/state/schema/party", "/inputs/setParty", "/inputs/setParty/params/size"],
-      "party-unchanged": ["/inputs/setParty/validate/party.unchanged"]
+  "$schema": "rulealize-studio/state-machine/v1",
+  "initial": "named",
+  "states": {
+    "named": { "name": "Named", "says": "There is a name.", "rules": ["/state/schema/stage"] }
+  },
+  "transitions": {
+    "party-size": {
+      "from": "named", "to": "named", "name": "Set the party",
+      "says": "A party is one to six people.",
+      "rules": ["/state/schema/party", "/inputs/setParty", "/inputs/setParty/params/size"]
+    }
+  },
+  "notes": {
+    "party-unchanged": {
+      "on": "party-size", "says": "Setting the party to the size it already is is refused.",
+      "rules": ["/inputs/setParty/validate/party.unchanged"]
     }
   }
 }
 ```
+
+A state may be `"final": true`, and a transition may have a `guard`, in words. The Studio's editor
+writes the file in one layout, whoever wrote it last; nothing else binds it to the rules.
 
 | a rule | its name |
 | --- | --- |
@@ -56,7 +66,7 @@ set gives it — never a place in the text:
 | a `validate` clause, by its code | `/inputs/<input>/validate/<code>` |
 | a definition, a projection, the ending | `/definitions/<name>`, `/projections/<name>`, `/terminal` |
 
-A part may be bound to nothing.
+An element may be bound to nothing yet.
 
 ## The rule set
 
@@ -88,7 +98,7 @@ input `setName` and one called `set-name` are both bound as SetName:
 A name the design binds that the rules lack fails the build, and says which.
 
 **What a refusal says.** A `validate` clause refuses with a code. The sentence shown for it is in
-a label document beside the rule set, keyed by the clause's name in the blueprint; a code with no
+a label document beside the rule set, keyed by the clause's name above; a code with no
 label is shown as the code:
 
 ```json
@@ -107,7 +117,7 @@ run in this folder, and is the program the Rulealize extension runs to show the 
 | --- | --- |
 | `dotnet build` | builds the application, the model generated from the rule set; a name the design binds that the rules lack is a build error |
 | `dotnet rulealize-studio check` | compiles the rule set against the vocabularies the build put beside the application; reports where the runtime found a fault |
-| `dotnet rulealize-studio agree` | compares the blueprint with the rules; reports a binding to a rule the rules lack, a rule no part asks for, and a part a specification no longer has |
+| `dotnet rulealize-studio agree` | compares the specification with the rules; reports a binding to a rule the rules lack, a rule no element asks for, and an element the specification refers to and does not have |
 | `dotnet ruledger derive <rule set>.json --plugins bin/Debug/net10.0` | walks the rules and writes the test design, carrying the `edits` already in it; reports a choice it could not carry |
 | `dotnet ruledger diff <rule set>.test-design.json <rule set>.json --plugins bin/Debug/net10.0` | holds the test design against the rules as they are now; reports where they decide differently, and a choice it could not carry |
 | `dotnet rulealize-studio replay` | stands the application as last built in every state the test design names, presses the control for every move, and tries every refused value; reports where the screen does not do what the design says, or does not say a refusal as its label document does |

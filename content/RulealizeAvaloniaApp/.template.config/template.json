@@ -4,7 +4,7 @@
   "classifications": [ "Rulealize", "Avalonia", "Desktop" ],
   "identity": "Rulealize.Avalonia.App.Template",
   "name": "Rulealize application for Avalonia",
-  "description": "An Avalonia application made of a rule set and XAML, before either is written: an empty window, an empty specification, and an entry point that is one call.",
+  "description": "An Avalonia application made of a rule set and XAML, before either is written: an empty window, an empty specification as a UML state machine, and an entry point that is one call.",
   "shortName": "rulealize-avalonia-app",
   "defaultName": "RulealizeApp",
   "sourceName": "Rulealize.Avalonia.Example",
