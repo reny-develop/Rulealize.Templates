@@ -6,6 +6,21 @@ what is the machine's and what stays with a person — is
 [Rule-Derived Test Design](https://github.com/reny-develop/rule-derived-test-design)'s to say,
 and is not repeated here.
 
+## Who reads what
+
+The folder is made for somebody who builds the application in VS Code with RulealizeStudio.Avalonia,
+and who need not be an engineer. What they read is three things: the screen, drawn as the window it
+is; the specification, drawn as a diagram, sentences and a table; and **On the screen**, every
+situation the rules allow shown as the application's own window, with what a change did shown as
+the window before it and after it. They do not read any file here as text. The rule set, the test
+design, the label documents, Rulealize, Ruledger, XAML and JSON are not words of theirs: what
+there is to say to them about the application is said in the words of its screen and its
+specification.
+
+They place the controls on the window in RulealizeStudio's screen editor, which writes where each
+is the way Visual Studio's WPF designer does: in a `Grid`, aligned to the top left of its cell with
+its distance from there as its `Margin`, and its size as its `Width` and `Height`.
+
 ## What is in the folder
 
 | | |

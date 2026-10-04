@@ -122,7 +122,9 @@ any JSON file in the folder that says it is one — the screen in `MainWindow.ax
 model generated from it, the specification's states, transitions and notes, each bound to the
 rules that carry it out, and the test design beside them, with a label document per language for
 what its refusals say; `Program.cs` is not edited.
-`AGENTS.md` says what is in the folder, how each file is read, and what each tool does and reports
+`AGENTS.md` says who reads what — the person the folder is made for reads its screen, its
+specification and **On the screen** in RulealizeStudio.Avalonia, and none of its files as text —
+what is in the folder, how each file is read, and what each tool does and reports
 — `dotnet build`, `rulealize-studio check`, `agree`, `replay` and `show`, and `ruledger derive` and
 `diff` — each the program the editor runs to show the person the same thing. It says nothing about
 what an agent should do: how an application like this is worked on is
