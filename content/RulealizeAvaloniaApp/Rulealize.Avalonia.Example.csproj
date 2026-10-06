@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <!--
-    An Avalonia application made of a rule set and XAML. The rule set is any JSON file in this
-    folder that says it is one; the generator reads it at build time and writes the model
-    MainWindow.axaml binds to, named after the rule set's id. Until there is one, the window is
-    empty.
+    An Avalonia application made of rule sets and XAML. A rule set is any JSON file in this
+    folder that says it is one; the generator reads each at build time and writes the model a
+    window binds to, named after the rule set's id. Until there is one, the window is empty.
   -->
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -24,9 +23,9 @@
     <PackageReference Include="Avalonia" Version="11.3.11" />
     <PackageReference Include="Avalonia.Desktop" Version="11.3.11" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.11" />
-    <PackageReference Include="RulealizeStudio.Binding" Version="0.3.0" />
-    <PackageReference Include="RulealizeStudio.Hosting" Version="0.3.0" />
-    <PackageReference Include="RulealizeStudio.Generator" Version="0.3.0" PrivateAssets="all" />
+    <PackageReference Include="RulealizeStudio.Binding" Version="0.4.0" />
+    <PackageReference Include="RulealizeStudio.Hosting" Version="0.4.0" />
+    <PackageReference Include="RulealizeStudio.Generator" Version="0.4.0" PrivateAssets="all" />
   </ItemGroup>
 
   <!--

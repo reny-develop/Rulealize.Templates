@@ -117,13 +117,14 @@ Booking/
 └─ .gitignore
 ```
 
-It builds as it is and opens an empty window. What is added to it afterwards is a rule set —
-any JSON file in the folder that says it is one — the screen in `MainWindow.axaml` bound to the
-model generated from it, the specification's states, transitions and notes, each bound to the
-rules that carry it out, and the test design beside them, with a label document per language for
-what its refusals say; `Program.cs` is not edited.
-`AGENTS.md` says who reads what — the person the folder is made for reads its screen, its
-specification and **On the screen** in RulealizeStudio.Avalonia, and none of its files as text —
+It builds as it is and opens an empty window. What is added to it afterwards is rule sets — any
+JSON file in the folder that says it is one — windows, `MainWindow.axaml` and any other `.axaml`,
+each bound to the model generated from one of them and shown while the rules say, specifications
+whose states, transitions and notes are each bound to the rules that carry them out, and the test
+design beside each rule set, with a label document per language for what its refusals say; none
+counted against the others, and `Program.cs` not edited for any of them.
+`AGENTS.md` says who reads what — the person the folder is made for reads its windows, its
+specifications and **Test cases** in RulealizeStudio.Avalonia, and none of its files as text —
 what is in the folder, how each file is read, and what each tool does and reports
 — `dotnet build`, `rulealize-studio check`, `agree`, `replay` and `show`, and `ruledger derive` and
 `diff` — each the program the editor runs to show the person the same thing. It says nothing about
