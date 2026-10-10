@@ -1191,8 +1191,11 @@ writes when both are present.
 
 ### Claiming yours
 
-Open a pull request against [Rulealize.Registry](https://github.com/reny-develop/Rulealize.Registry)
-adding one line to `ledger/submitted.json`, in identifier order:
+Submit it from [Rulealize.Registry's submit page](https://reny-develop.github.io/Rulealize.Registry/submit/):
+the package, the version, the namespace and the shorthand character. The page checks them
+against nuget.org and against what is already claimed, then opens an issue on the registry with
+every field filled in, which you send with one click. What it asks for is one line in the
+registry's `ledger/submitted.json`:
 
 ```json
     { "id": "Acme.Deploy.Rules", "version": "0.1.0", "namespace": "acme", "prefix": null },
@@ -1205,16 +1208,16 @@ your `PluginManifest`'s version rather than your project file's; `prefix` is you
 character or `null`, written rather than left out.
 
 **Nothing you state is believed.** CI fetches that package, loads it the way an application
-does, and refuses the pull request if the assembly says anything else — a different namespace,
+does, and refuses the submission if the assembly says anything else — a different namespace,
 a character you did not declare, a manifest version that is not the one it was fetched at, or
 a `PluginManifest.Id` that is not the package you named. Nothing is described in a form: every
 field points at something the package already says.
 [The grant policy](https://github.com/reny-develop/Rulealize.Registry/blob/main/doc/policy.md#how-to-claim)
 is what the submission is held to.
 
-**A submission that adds one line and touches nothing else merges when the checks pass**, with
-nobody reading it first. A pull request that touches anything else is closed — that repository
-indexes plugins and takes nothing else this way, and an issue is where the rest belongs.
+**A submission whose package agrees with it is recorded**, with nobody reading it first, and
+the answer — recorded, or what to put right — is posted on the issue, which GitHub notifies
+you of. Putting one right is editing the issue; it is read again.
 
 **A namespace cannot be reserved in advance.** Every entry is derived by loading an assembly,
 and there is nothing to load before a package exists — so a reservation could only be a claim
@@ -1244,7 +1247,7 @@ like the `|` that separates a tuple's components. Those are listed in the regist
 has the two things worth knowing before reserving one, neither of which is a condition. A
 letter, a digit and whitespace the runtime refuses whatever any of that says.
 
-**Releases after the first need no pull request.** The ledger holds one row per plugin
+**Releases after the first need no new submission.** The ledger holds one row per plugin
 because a claim is permanent; the index rereads nuget.org daily, picks up new versions, and
 checks that their claims did not move.
 
