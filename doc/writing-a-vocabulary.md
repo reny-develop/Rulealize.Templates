@@ -1228,8 +1228,8 @@ already expects it, and it is the only form of a claim this index is able to rec
 
 **Vendor-qualify it.** `acme`, not `deploy` — a namespace with an audience of one still
 occupies a name in a space everyone shares. Every namespace the ledger already records is taken,
-and `str`, `time`, `set` and `fmt` are held against vocabularies that do not exist yet: those
-are refused rather than granted, because there is no supply of others.
+and `time`, `set` and `fmt` are held against vocabularies that do not exist yet: those are
+refused rather than granted, because there is no supply of others.
 
 **Publish under the identifier your manifest declares.** Nothing enforces that
 `PluginManifest.Id` and the package name are one string, but the index fetches a submission by
