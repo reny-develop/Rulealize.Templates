@@ -678,6 +678,8 @@ next to the vocabulary that reserved it, and three are in use:
 
 Each is shorthand for an operation you could have written out, and each needs its vocabulary
 in `requires` — which is why `probe.json` names `Binding` although no `bind.*` appears in it.
+Text that begins with one of these characters and is meant as text is written
+`{ "op": "literal", "value": "@token" }`, the one operation the core reads itself.
 
 **Reserving one is two lines.** The character is the fourth argument to `PluginManifest`, and
 an `ISugarExpander` handed to `registry.AddSugar` is what turns the literal into a node: it
