@@ -364,3 +364,5 @@ FodyWeavers.xsd
 
 # vscode
 .vscode/
+# ...except the one rulealize-avalonia-app writes: its tasks are the build and the replay.
+!content/RulealizeAvaloniaApp/.vscode/

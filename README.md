@@ -10,6 +10,7 @@ dotnet new rulealize-plugin -n Rulealize.Plugin.Example
 | Template | |
 | --- | --- |
 | `rulealize-plugin` | a vocabulary: one plugin class, one worked example of each kind of node, and a rule set that calls them |
+| `rulealize-avalonia-app` | an Avalonia application made of a rule set and XAML, before either is written — [below](#an-avalonia-application) |
 
 The scaffolding is what a template can write. The part it cannot is
 [**writing a vocabulary**](doc/writing-a-vocabulary.md) — what `Build` and `Evaluate` are
@@ -97,6 +98,46 @@ and five of a schema's members are each visible whole.
 
 Copy the shape you need, write yours, delete all three. The same goes for
 `ruleset/probe.json`, which calls them.
+
+## An Avalonia application
+
+```sh
+dotnet new rulealize-avalonia-app -n Booking --feed <folder>
+```
+
+```
+Booking/
+├─ Booking.csproj      the vocabularies the rule set requires, as packages; none yet
+├─ Program.cs          one call, naming neither the rule set nor its model
+├─ MainWindow.axaml    a window with nothing on it
+├─ specification.json  what the application should do, as a UML state machine; nothing in it yet
+├─ AGENTS.md           what is in the folder and what each tool does; CLAUDE.md only reads it
+├─ .config/dotnet-tools.json   rulealize-studio and ruledger, pinned
+├─ .vscode/tasks.json  the build and the replay, as tasks
+└─ .gitignore
+```
+
+It builds as it is and opens an empty window. What is added to it afterwards is rule sets — any
+JSON file in the folder that says it is one — windows, `MainWindow.axaml` and any other `.axaml`,
+each bound to the model generated from one of them and shown while the rules say, specifications
+whose states, transitions and notes are each bound to the rules that carry them out, and the test
+design beside each rule set, with a label document per language for what its refusals say; none
+counted against the others, and `Program.cs` not edited for any of them.
+`AGENTS.md` says who reads what — the person the folder is made for reads its windows, its
+specifications and **Test cases** in RulealizeStudio.Avalonia, and none of its files as text —
+what is in the folder, how each file is read, and what each tool does and reports
+— `dotnet build`, `rulealize-studio check`, `agree`, `replay` and `show`, and `ruledger derive` and
+`diff` — each the program the editor runs to show the person the same thing. It says nothing about
+what an agent should do: how an application like this is worked on is
+[Rule-Derived Test Design](https://github.com/reny-develop/rule-derived-test-design)'s to say, and
+it links there rather than restating it, as it links Rulealize's guides. That is
+[RulealizeStudio](https://github.com/reny-develop/RulealizeStudio.Avalonia)'s arrangement, and
+the libraries it references are RulealizeStudio's.
+
+**`--feed` is there while those libraries are not on nuget.org.** Given a folder of packages, the
+template writes a `nuget.config` that restores from it as well; without it, no `nuget.config` is
+written. The extension that makes an application folder passes its own. Once the libraries are
+published, the parameter and the file go.
 
 ## License
 
