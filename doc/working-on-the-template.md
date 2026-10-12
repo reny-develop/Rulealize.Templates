@@ -88,6 +88,7 @@ Tried the same way, from `./content/RulealizeAspNetCoreApp`, with `--feed` point
 dotnet new rulealize-aspnetcore-app -n Trial --feed <RulealizeStudio.AspNetCore>/feed
 cd Trial
 dotnet build                                 # silent
+dotnet run -- agree                          # silent: the specification has nothing in it yet
 dotnet run                                   # serves nothing yet: / is 404
 ```
 

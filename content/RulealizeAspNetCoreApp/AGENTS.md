@@ -11,17 +11,19 @@ and is not repeated here.
 The folder is made for somebody who builds the application in VS Code with
 RulealizeStudio.AspNetCore, and who need not be an engineer. What they read is the application's
 own pages, in a browser and in **Test cases**: every situation the rules allow shown as the pages
-the application serves, with what a change did shown as the pages before it and after it. Where no
+the application serves, with what a change did shown as the pages before it and after it; and each
+specification, drawn as a diagram, sentences and a table. Where no
 screen shows a rule set, the page is the one drawn from its rules, and each step is said in the
 rules' own words beside it. They do not read any file here as text. The rule sets, the test designs,
 the label documents, Rulealize, Ruledger, Razor and JSON are not words of theirs: what there is to
-say to them about the application is said in the words of its pages.
+say to them about the application is said in the words of its pages and its specifications.
 
 ## What is in the folder
 
 | | |
 | --- | --- |
 | `<name>.razor` | a screen: a page at the address its `@page` gives, showing the model of one rule set; there may be none |
+| `specification.json`, and any other `<name>.specification.json` | what the application should do, as UML state machines, each element bound to the rules that carry it out |
 | `<rule set>.json` | the rules; there may be more than one |
 | `<rule set>.test-design.json` | everything the rules allow, as `dotnet run -- derive` writes it down |
 | `<rule set>.labels.<language>.json` | what the application says, in one language, where the rules refuse with a code |
@@ -35,8 +37,10 @@ a screen or a rule set is added, and the parameters of a screen's address; the m
 the application is built. A rule set is any JSON file here whose `$schema` says it is one, and the
 files beside it are named after it: `booking.json`, `booking.test-design.json`,
 `booking.labels.en.json`. A rule set another holds through `uses` is a JSON file here too, found by
-the `id` inside it, which is where `rulealize restore` writes it. How many of each there are is not
-counted against the others: two screens may show one rule set, and a rule set may be shown by none.
+the `id` inside it, which is where `rulealize restore` writes it. A specification is any JSON file
+here whose `$schema` says it is one; it is written before there are rules, and is named after none.
+How many of each there are is not counted against the others: two screens may show one rule set, a
+rule set may be shown by none, and one specification may ask for rules of two.
 
 ## The screens
 
@@ -85,6 +89,54 @@ its page is the same address without `/api`:
 Every screen's position is served over HTTP as well while the application is developed, at its
 address under `/api`, and `/openapi/v1.json` describes all of them. Positions are kept in memory, or
 in SQLite where `appsettings.json` has a connection string named `Positions`.
+
+## The specification
+
+A specification is a UML state machine: the states the application is in, the transitions
+between them — each what a person does, and what it waits for — and notes on either, or on the
+whole, for what is said about them that is not a move. Each of the three is an element, under an
+id of its own, and holds what it says and the rules that carry it out, each by a name the rule set
+gives it — never a place in the text:
+
+```json
+{
+  "$schema": "rulealize-studio-aspnetcore/state-machine/v1",
+  "initial": "named",
+  "states": {
+    "named": { "name": "Named", "says": "There is a name.", "rules": ["/state/schema/stage"] }
+  },
+  "transitions": {
+    "party-size": {
+      "from": "named", "to": "named", "name": "Set the party",
+      "says": "A party is one to six people.",
+      "rules": ["/state/schema/party", "/inputs/setParty", "/inputs/setParty/params/size"]
+    }
+  },
+  "notes": {
+    "party-unchanged": {
+      "on": "party-size", "says": "Setting the party to the size it already is is refused.",
+      "rules": ["/inputs/setParty/validate/party.unchanged"]
+    }
+  }
+}
+```
+
+A state may be `"final": true`, and a transition may have a `guard`, in words. What is said in an
+element is the person's, in their words: whether there is one booking or one per address, who does
+what. RulealizeStudio.AspNetCore's editor writes the file in one layout, whoever wrote it last;
+nothing else binds it to the rules.
+
+| a rule | its name |
+| --- | --- |
+| a state field and what its schema allows | `/state/schema/<field>` |
+| an input | `/inputs/<input>` |
+| a parameter of it, its guard, who may make it, its effects | `/inputs/<input>/params/<parameter>`, `/inputs/<input>/when`, `/inputs/<input>/actor`, `/inputs/<input>/effects` |
+| a `validate` clause, by its code | `/inputs/<input>/validate/<code>` |
+| a definition, a projection, the ending | `/definitions/<name>`, `/projections/<name>`, `/terminal` |
+
+An element may be bound to nothing yet. Where the application has more than one rule set, a binding
+names the one it is to, by its file without `.json`, before a `#`: `booking#/inputs/setParty`. A rule
+set another holds through `uses` is not held to a specification; the rule set holding it is.
 
 ## The rule set
 
@@ -139,6 +191,7 @@ vocabularies, so there is no other tool to restore.
 | `dotnet run -- replay <rule set>.test-design.json` | serves the application in memory, stands it in every state the test design names, presses the control for every move on the page that shows it, and tries every refused value; reports where the pages do not do what the design says, or do not say a refusal as its label document does |
 | `dotnet run -- show <rule set>.test-design.json --out <file>` | writes every situation of the test design as the pages it pressed on |
 | `dotnet run -- changes <rule set>.json --before <rule set as last committed> --design <rule set>.test-design.json` | says what the rules as they are now decide otherwise than the rules as last committed |
+| `dotnet run -- agree` | compares every specification in the folder with every rule set in it; reports a binding to a rule the rules lack, a rule no element of any specification asks for, and an element a specification refers to and does not have |
 
 They exit 0 when there is nothing to report, 1 when it could not be done, 2 when the command line
 was not understood, and 3 when there is something to report.

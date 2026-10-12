@@ -152,20 +152,22 @@ Booking/
 ├─ Program.cs          one call, naming neither a rule set nor its model
 ├─ _Imports.razor      what a screen names without saying where it is from
 ├─ Properties/launchSettings.json   Development, on a port of its own
+├─ specification.json  what the application should do, as a UML state machine; nothing in it yet
 ├─ AGENTS.md           what is in the folder and what each tool does; CLAUDE.md only reads it
 └─ .gitignore
 ```
 
 It builds as it is and serves nothing: there is no screen and no rule set. What is added to it
-afterwards is rule sets — any JSON file in the folder that says it is one — and screens, Razor
-components with an address, each showing the model generated from one of them; a rule set no
+afterwards is rule sets — any JSON file in the folder that says it is one — screens, Razor
+components with an address, each showing the model generated from one of them, and specifications
+whose states, transitions and notes are each bound to the rules that carry them out; a rule set no
 screen shows is a Web API, and while the application is developed it is pressed on a page drawn
 from its rules. With them come the test design beside each rule set, a label document per language
 for what its refusals say, and an `appsettings.json` where one is wanted; none counted against the
 others, and `Program.cs` not edited for any of them. `AGENTS.md` says who reads what — the person the
-folder is made for reads its pages and **Test cases** in RulealizeStudio.AspNetCore, and none of its
-files as text — what is in the folder, how each file is read, and what each tool does and reports:
-`dotnet build`, and `derive`, `replay`, `show` and `changes`, which the application answers on its own
+folder is made for reads its pages, its specifications and **Test cases** in RulealizeStudio.AspNetCore,
+and none of its files as text — what is in the folder, how each file is read, and what each tool does
+and reports: `dotnet build`, and `derive`, `replay`, `show`, `changes` and `agree`, which the application answers on its own
 command line, each the program the editor runs to show the person the same thing. So there are no
 tools to restore. Like the Avalonia application's, it says nothing about what an agent should do.
 
