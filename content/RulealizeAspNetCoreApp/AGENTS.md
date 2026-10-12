@@ -23,6 +23,7 @@ say to them about the application is said in the words of its pages and its spec
 | | |
 | --- | --- |
 | `<name>.razor` | a screen: a page at the address its `@page` gives, showing the model of one rule set; there may be none |
+| `<name>.razor.css` | how one screen looks, each element by a class of its own, with a `@media (max-width: …px)` block for each narrower view; Blazor keeps it to that screen; there may be none |
 | `specification.json`, and any other `<name>.specification.json` | what the application should do, as UML state machines, each element bound to the rules that carry it out |
 | `<rule set>.json` | the rules; there may be more than one |
 | `<rule set>.test-design.json` | everything the rules allow, as `dotnet run -- derive` writes it down |
@@ -30,6 +31,7 @@ say to them about the application is said in the words of its pages and its spec
 | `<rule set>.state.json` | where the rule set's positions start, where its initial state is only the shape of a case |
 | `appsettings.json` | where the positions are kept, and the address of a rule set no screen shows; neither is needed |
 | `wwwroot/app.css` | how every page looks, linked from each where it is there |
+| `views.json` | the widths the screens are designed at, a name and a width each, which the screen editor draws and writes the `@media` blocks for; where there is none, one view, PC at 1280 |
 | the `.csproj` | the vocabularies the rule sets require, as packages |
 
 There is no C# beyond `Program.cs`, which is the same in every application, and is not edited when
