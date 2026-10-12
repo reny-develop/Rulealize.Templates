@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <!--
+    A web application made of rule sets and Razor screens. A rule set is any JSON file in this
+    folder that says it is one; the generator reads each at build time and writes the model a
+    screen inherits, named after the rule set's id. The rules travel inside that model, so the
+    JSON files are not copied beside the application. Until there is a rule set, nothing is served.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Rulealize.AspNetCore.Example</RootNamespace>
+  </PropertyGroup>
+
+  <!-- The generator's package already brings the label documents and the start beside a rule set. -->
+  <ItemGroup>
+    <AdditionalFiles Include="*.json" Exclude="*.labels.*.json;*.state.json;appsettings*.json" />
+    <Content Update="@(AdditionalFiles)" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RulealizeStudio.AspNetCore.Binding" Version="0.1.0" />
+    <PackageReference Include="RulealizeStudio.AspNetCore.Components" Version="0.1.0" />
+    <PackageReference Include="RulealizeStudio.AspNetCore.Hosting" Version="0.1.0" />
+    <PackageReference Include="RulealizeStudio.AspNetCore.Generator" Version="0.1.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!--
+    What the rule set requires: a package per vocabulary it names, so that the rules ship with
+    the application and the model finds them beside it. None until there is a rule set.
+  -->
+  <ItemGroup>
+  </ItemGroup>
+
+</Project>

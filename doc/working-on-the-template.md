@@ -1,7 +1,7 @@
 # Working on the template
 
 For changing what `rulealize-plugin` writes, and [below](#rulealize-avalonia-app), what
-`rulealize-avalonia-app` does. Nothing here is needed to use it — that is
+`rulealize-avalonia-app` and `rulealize-aspnetcore-app` do. Nothing here is needed to use it — that is
 `dotnet new install Rulealize.Templates`, and the [readme](../README.md) covers it.
 
 ## Trying a change
@@ -77,6 +77,28 @@ the only thing that writes it. The versions of RulealizeStudio's packages in the
 `rulealize-studio` in `.config/dotnet-tools.json`, are the ones RulealizeStudio packs, and `--feed`
 needs its server packed beside the libraries for `dotnet tool restore` to find it. `AGENTS.md`
 names the version of nothing; what it says each check is held to RulealizeStudio's commands.
+
+## rulealize-aspnetcore-app
+
+Tried the same way, from `./content/RulealizeAspNetCoreApp`, with `--feed` pointing at
+`feed/` in a RulealizeStudio.AspNetCore working copy, after packing its `Binding`, `Components`,
+`Hosting` and `Generator`:
+
+```sh
+dotnet new rulealize-aspnetcore-app -n Trial --feed <RulealizeStudio.AspNetCore>/feed
+cd Trial
+dotnet build                                 # silent
+dotnet run                                   # serves nothing yet: / is 404
+```
+
+Then a rule set and its vocabularies — a sample's from RulealizeStudio.AspNetCore — so that
+`dotnet run -- derive <rule set>.json` and `dotnet run -- replay <rule set>.test-design.json` walk
+it on the page drawn from its rules, and once more with the sample's screen beside it.
+
+`sourceName` is `Rulealize.AspNetCore.Example`, which is the project, the namespace and the launch
+profile. `--feed` replaces `FEED_FOLDER` in `nuget.config`, and the port in `launchSettings.json`
+is generated. The versions of RulealizeStudio.AspNetCore's packages in the csproj are the ones it
+packs. There is no tool manifest: the application answers what the editor asks on its own command line.
 
 ## Releasing
 

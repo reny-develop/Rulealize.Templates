@@ -11,6 +11,7 @@ dotnet new rulealize-plugin -n Rulealize.Plugin.Example
 | --- | --- |
 | `rulealize-plugin` | a vocabulary: one plugin class, one worked example of each kind of node, and a rule set that calls them |
 | `rulealize-avalonia-app` | an Avalonia application made of a rule set and XAML, before either is written — [below](#an-avalonia-application) |
+| `rulealize-aspnetcore-app` | an ASP.NET Core application made of rule sets and Razor screens, before either is written — [below](#an-aspnet-core-application) |
 
 The scaffolding is what a template can write. The part it cannot is
 [**writing a vocabulary**](doc/writing-a-vocabulary.md) — what `Build` and `Evaluate` are
@@ -138,6 +139,37 @@ the libraries it references are RulealizeStudio's.
 template writes a `nuget.config` that restores from it as well; without it, no `nuget.config` is
 written. The extension that makes an application folder passes its own. Once the libraries are
 published, the parameter and the file go.
+
+## An ASP.NET Core application
+
+```sh
+dotnet new rulealize-aspnetcore-app -n Booking --feed <folder>
+```
+
+```
+Booking/
+├─ Booking.csproj      the vocabularies the rule sets require, as packages; none yet
+├─ Program.cs          one call, naming neither a rule set nor its model
+├─ _Imports.razor      what a screen names without saying where it is from
+├─ Properties/launchSettings.json   Development, on a port of its own
+├─ AGENTS.md           what is in the folder and what each tool does; CLAUDE.md only reads it
+└─ .gitignore
+```
+
+It builds as it is and serves nothing: there is no screen and no rule set. What is added to it
+afterwards is rule sets — any JSON file in the folder that says it is one — and screens, Razor
+components with an address, each showing the model generated from one of them; a rule set no
+screen shows is a Web API, and while the application is developed it is pressed on a page drawn
+from its rules. With them come the test design beside each rule set, a label document per language
+for what its refusals say, and an `appsettings.json` where one is wanted; none counted against the
+others, and `Program.cs` not edited for any of them. `AGENTS.md` says who reads what — the person the
+folder is made for reads its pages and **Test cases** in RulealizeStudio.AspNetCore, and none of its
+files as text — what is in the folder, how each file is read, and what each tool does and reports:
+`dotnet build`, and `derive`, `replay`, `show` and `changes`, which the application answers on its own
+command line, each the program the editor runs to show the person the same thing. So there are no
+tools to restore. Like the Avalonia application's, it says nothing about what an agent should do.
+
+`--feed` is there for the same reason, for RulealizeStudio.AspNetCore's libraries.
 
 ## License
 
