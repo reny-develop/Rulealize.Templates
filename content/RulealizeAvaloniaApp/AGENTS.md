@@ -28,8 +28,10 @@ its distance from there as its `Margin`, and its size as its `Width` and `Height
 | `MainWindow.axaml`, and any other `.axaml` | the design: each a window, bound by name to what the rules give |
 | `specification.json`, and any other `<name>.specification.json` | what the application should do, as UML state machines, each element bound to the rules that carry it out |
 | `<rule set>.json` | the rules; there may be more than one |
-| `<rule set>.test-design.json` | everything the rules allow, as `ruledger derive` writes it down |
+| `<rule set>.test-design.json` | everything the rules allow, as `rulealize-studio derive` writes it down |
+| `<rule set>.state.json` | where the application begins, where the rules' own beginning is only the shape of a case; there may be none |
 | `<rule set>.labels.<language>.json` | what the application says, in one language, where the rules refuse with a code |
+| a rule set another one holds | a part of that one, as `rulealize restore` writes it beside it; it has no window, test design or specification of its own |
 | the `.csproj` | the vocabularies the rule set requires, as packages |
 
 The design and the specifications together are the blueprint. There is no C# beyond `Program.cs`,
@@ -137,6 +139,22 @@ input `setName` and one called `set-name` are both bound as SetName:
 
 A name the design binds that the rules lack fails the build, and says which.
 
+**A rule set made of others.** A rule set may hold others through `uses`, each under the name it
+gives it, as Rulealize's guide says. Each one it holds is restored beside it, where the build reads
+it as it reads every JSON here — a build that cannot find one says which — and is a part of the
+one holding it: the application binds the one holding it, every move of a part under the
+name it offers it by, `req.raise`, and each part's fields under the part's own name:
+
+```xml
+<Button Command="{Binding ReqRaise.Apply}" />     <!-- raise, an input of the part held as req -->
+<TextBlock Text="{Binding State.Req.Stage}" />   <!-- stage, a field of that part -->
+```
+
+**Where it begins.** Where a rule set's own beginning is only the shape of a case — a list of who
+may sign that is empty until somebody says who, which no rule set writes — the application begins
+in the state written beside it, `<rule set>.state.json`, a `rulealize/state/v1` document. The test
+design begins there too, and says so; a design that began elsewhere is not replayed.
+
 **What a refusal says.** A `validate` clause refuses with a code, and so does an open parameter's
 `invalid`, for a value its schema does not admit. The sentence shown for either is in a label
 document beside the rule set, keyed `/inputs/<input>/validate/<code>` — the name above, which an
@@ -151,7 +169,7 @@ document beside the rule set, keyed `/inputs/<input>/validate/<code>` — the na
 
 ## The tools
 
-`dotnet tool restore` fetches the two pinned in `.config/dotnet-tools.json`. Each command below is
+`dotnet tool restore` fetches the one pinned in `.config/dotnet-tools.json`. Each command below is
 run in this folder, and is the program the Rulealize extension runs to show the same thing.
 
 | command | what it does, and what it reports |
@@ -159,16 +177,16 @@ run in this folder, and is the program the Rulealize extension runs to show the 
 | `dotnet build` | builds the application, the model generated from the rule set; a name the design binds that the rules lack is a build error |
 | `dotnet rulealize-studio check` | compiles the rule set against the vocabularies the build put beside the application; reports where the runtime found a fault |
 | `dotnet rulealize-studio agree` | compares every specification with every rule set; reports a binding to a rule the rules lack, a rule no element of any specification asks for, and an element a specification refers to and does not have |
-| `dotnet ruledger derive <rule set>.json --plugins bin/Debug/net10.0` | walks the rules and writes the test design, carrying the `edits` already in it; reports a choice it could not carry |
-| `dotnet ruledger diff <rule set>.test-design.json <rule set>.json --plugins bin/Debug/net10.0` | holds the test design against the rules as they are now; reports where they decide differently, and a choice it could not carry |
+| `dotnet rulealize-studio derive` | walks the rules from where the application begins, with every rule set they hold, against the vocabularies the build put beside the application, and writes the test design beside them, carrying the `edits` already in it; reports a choice it could not carry |
+| `dotnet rulealize-studio changes` | holds the test design beside the rules against the rules as they are now; answers, as JSON, every situation they decide differently — what can be done there, where it leads, how it ends, what is refused, and what the rules say there by a name a window binds — and a choice it could not carry |
 | `dotnet rulealize-studio replay` | stands the application as last built in every state the test design names, presses the control for every move on whichever window shows it — a window's × among them — and tries every refused value; reports where the windows do not do what the design says, or do not say a refusal as its label document does |
 | `dotnet rulealize-studio show` | lists the test design's situations; with `--state <name> --out <folder>`, writes pictures of every window shown, standing in one |
 
-Where there is more than one rule set, `check`, `replay` and `show` are told which with
-`--rules <rule set>.json`, and `ruledger` is given it as above.
+Where there is more than one rule set — not counting one another holds — `check`, `derive`,
+`replay`, `show` and `changes` are told which with `--rules <rule set>.json`.
 
 `dotnet build`, and `rulealize-studio`'s `check`, `agree` and `replay`, write what they report the way a compiler
-does: the file, the place, what is there. `rulealize-studio` and `ruledger` exit 0 when there is
+does: the file, the place, what is there. `rulealize-studio` exits 0 when there is
 nothing to report, 1 when it could not be done, 2 when the command line was not understood, and
 3 when there is something to report.
 

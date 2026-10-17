@@ -20,10 +20,18 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="RulealizeStudio.AspNetCore.Binding" Version="0.1.0" />
-    <PackageReference Include="RulealizeStudio.AspNetCore.Components" Version="0.1.0" />
-    <PackageReference Include="RulealizeStudio.AspNetCore.Hosting" Version="0.1.0" />
-    <PackageReference Include="RulealizeStudio.AspNetCore.Generator" Version="0.1.0" PrivateAssets="all" />
+    <PackageReference Include="RulealizeStudio.AspNetCore.Binding" Version="0.2.0" />
+    <PackageReference Include="RulealizeStudio.AspNetCore.Components" Version="0.2.0" />
+    <PackageReference Include="RulealizeStudio.AspNetCore.Hosting" Version="0.2.0" />
+    <PackageReference Include="RulealizeStudio.AspNetCore.Generator" Version="0.2.0" PrivateAssets="all" />
+  </ItemGroup>
+
+  <!--
+    What the application answers on its command line while it is developed — show, replay, changes,
+    derive, agree — and what they are built on: in Debug only, so that none of it is published.
+  -->
+  <ItemGroup Condition="'$(Configuration)' == 'Debug'">
+    <PackageReference Include="RulealizeStudio.AspNetCore.Design" Version="0.2.0" />
   </ItemGroup>
 
   <!--

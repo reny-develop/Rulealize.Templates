@@ -68,7 +68,7 @@ packing its `Binding`, `Hosting` and `Generator`:
 dotnet new rulealize-avalonia-app -n Trial --feed <RulealizeStudio>/feed
 cd Trial
 dotnet build                                 # silent, and the window opens empty
-dotnet tool restore                          # rulealize-studio from the same folder, ruledger from nuget.org
+dotnet tool restore                          # rulealize-studio, from the same folder
 ```
 
 `sourceName` is `Rulealize.Avalonia.Example`, which is the project, the namespace and the window's
@@ -82,7 +82,7 @@ names the version of nothing; what it says each check is held to RulealizeStudio
 
 Tried the same way, from `./content/RulealizeAspNetCoreApp`, with `--feed` pointing at
 `feed/` in a RulealizeStudio.AspNetCore working copy, after packing its `Binding`, `Components`,
-`Hosting` and `Generator`:
+`Hosting`, `Design` and `Generator`:
 
 ```sh
 dotnet new rulealize-aspnetcore-app -n Trial --feed <RulealizeStudio.AspNetCore>/feed
@@ -99,7 +99,9 @@ it on the page drawn from its rules, and once more with the sample's screen besi
 `sourceName` is `Rulealize.AspNetCore.Example`, which is the project, the namespace and the launch
 profile. `--feed` replaces `FEED_FOLDER` in `nuget.config`, and the port in `launchSettings.json`
 is generated. The versions of RulealizeStudio.AspNetCore's packages in the csproj are the ones it
-packs. There is no tool manifest: the application answers what the editor asks on its own command line.
+packs. There is no tool manifest: the application answers what the editor asks on its own command line,
+from `Design`, which the csproj references in Debug only, so `dotnet run -c Release -- agree` says it
+is not there and exits 2, and `dotnet publish` writes none of it.
 
 ## Releasing
 

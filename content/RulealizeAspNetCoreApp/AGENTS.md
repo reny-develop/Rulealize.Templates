@@ -184,7 +184,9 @@ as the code:
 
 Each command below is run in this folder, and is the program the RulealizeStudio.AspNetCore
 extension runs to show the same thing: the application answers them itself, with its own
-vocabularies, so there is no other tool to restore.
+vocabularies, so there is no other tool to restore. It answers them in its Debug configuration,
+which `dotnet run` builds, from RulealizeStudio.AspNetCore.Design; the project references that in
+Debug only, so a Release build, and what `dotnet publish` writes, has none of it and says so.
 
 | command | what it does, and what it reports |
 | --- | --- |
@@ -196,7 +198,7 @@ vocabularies, so there is no other tool to restore.
 | `dotnet run -- agree` | compares every specification in the folder with every rule set in it; reports a binding to a rule the rules lack, a rule no element of any specification asks for, and an element a specification refers to and does not have |
 
 They exit 0 when there is nothing to report, 1 when it could not be done, 2 when the command line
-was not understood, and 3 when there is something to report.
+was not understood or the build has no Design, and 3 when there is something to report.
 
 Where a parameter is typed rather than picked from what the rules list — a name, say — the walk
 follows only the values written in the design's `edits`, in the form Ruledger's

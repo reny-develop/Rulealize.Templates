@@ -113,7 +113,7 @@ Booking/
 ├─ MainWindow.axaml    a window with nothing on it
 ├─ specification.json  what the application should do, as a UML state machine; nothing in it yet
 ├─ AGENTS.md           what is in the folder and what each tool does; CLAUDE.md only reads it
-├─ .config/dotnet-tools.json   rulealize-studio and ruledger, pinned
+├─ .config/dotnet-tools.json   rulealize-studio, pinned
 ├─ .vscode/tasks.json  the build and the replay, as tasks
 └─ .gitignore
 ```
@@ -127,8 +127,8 @@ counted against the others, and `Program.cs` not edited for any of them.
 `AGENTS.md` says who reads what — the person the folder is made for reads its windows, its
 specifications and **Test cases** in RulealizeStudio.Avalonia, and none of its files as text —
 what is in the folder, how each file is read, and what each tool does and reports
-— `dotnet build`, `rulealize-studio check`, `agree`, `replay` and `show`, and `ruledger derive` and
-`diff` — each the program the editor runs to show the person the same thing. It says nothing about
+— `dotnet build`, and `rulealize-studio check`, `agree`, `derive`, `replay`, `show` and `changes`
+— each the program the editor runs to show the person the same thing. It says nothing about
 what an agent should do: how an application like this is worked on is
 [Rule-Derived Test Design](https://github.com/reny-develop/rule-derived-test-design)'s to say, and
 it links there rather than restating it, as it links Rulealize's guides. That is
@@ -168,7 +168,8 @@ others, and `Program.cs` not edited for any of them. `AGENTS.md` says who reads 
 folder is made for reads its pages, its specifications and **Test cases** in RulealizeStudio.AspNetCore,
 and none of its files as text — what is in the folder, how each file is read, and what each tool does
 and reports: `dotnet build`, and `derive`, `replay`, `show`, `changes` and `agree`, which the application answers on its own
-command line, each the program the editor runs to show the person the same thing. So there are no
+command line in its Debug configuration, from a package it references there only so that none of it
+is published, each the program the editor runs to show the person the same thing. So there are no
 tools to restore. Like the Avalonia application's, it says nothing about what an agent should do.
 
 `--feed` is there for the same reason, for RulealizeStudio.AspNetCore's libraries.
