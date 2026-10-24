@@ -913,9 +913,9 @@ plugin
   1 assembly, 1 vocabulary
 
   Rulealize.Plugin.Example 1.0.0  (example)
-      example.pile                  schema
-      example.push                  effect
-      example.top                   expression
+      example.pile                 schema
+      example.push                 effect
+      example.top                  expression
 
 3 operations in total.
 ```
